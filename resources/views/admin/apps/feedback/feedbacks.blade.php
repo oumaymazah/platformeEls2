@@ -77,9 +77,9 @@
                                                             <div class="avatar-sm bg-light rounded mr-3 text-center">
                                                             </div>
                                                             <div>
-                                                                <h6 class="mb-0">{{ $feedback->training>title }}</h6>
+                                                                <h6 class="mb-0">{{ $feedback->training->title }}</h6>
                                                                 @if(isset($feedback->user))
-                                                                    <small class="text-muted">Par: {{ $feedback->user->name ?? 'Anonyme' }}</small>
+                                                                    <small class="text-muted">Par: {{ $feedback->user->name ?? 'Anonyme' }} {{ $feedback->user->lastname ?? 'Anonyme' }}</small>
                                                                 @endif
                                                             </div>
                                                         </div>
@@ -129,7 +129,7 @@
                                         <div class="d-flex">
                                             <div class="flex-grow-1">
                                                 <p class="text-muted fw-medium mb-2">Total Feedbacks</p>
-                                                <h4 class="mb-0" id="total-feedbacks">{{ count($feedbacks) }}</h4>
+                                                <h4 class="mb-0 text-dark" id="total-feedbacks">{{ count($feedbacks) }}</h4>
                                             </div>
                                             <div class="mini-stat-icon avatar-sm rounded-circle bg-primary align-self-center">
                                                 <span class="avatar-title">
@@ -146,7 +146,7 @@
                                         <div class="d-flex">
                                             <div class="flex-grow-1">
                                                 <p class="text-muted fw-medium mb-2">Note Moyenne</p>
-                                                <h4 class="mb-0" id="average-rating">
+                                                <h4 class="mb-0 text-dark" id="average-rating">
                                                     @php
                                                         $totalRating = 0;
                                                         $ratedCount = 0;
@@ -156,7 +156,7 @@
                                                                 $ratedCount++;
                                                             }
                                                         }
-                                                        echo $ratedCount > 0 ? number_format($totalRating / $ratedCount, 1) : 'N/A';
+                                                        echo $ratedCount > 0 ? number_format($totalRating / $ratedCount, 1) : '0';
                                                     @endphp
                                                 </h4>
                                             </div>
@@ -175,12 +175,12 @@
                                         <div class="d-flex">
                                             <div class="flex-grow-1">
                                                 <p class="text-muted fw-medium mb-2">Formations Notées</p>
-                                                <h4 class="mb-0" id="rated-formations">
+                                                <h4 class="mb-0 text-dark" id="rated-formations">
                                                     @php
                                                         $ratedFormations = [];
                                                         foreach($feedbacks as $feedback) {
                                                             if ($feedback->rating_count !== null) {
-                                                                $ratedFormations[$feedback->formation->id] = true;
+                                                                $ratedFormations[$feedback->training->id] = true;
                                                             }
                                                         }
                                                         echo count($ratedFormations);
@@ -203,31 +203,13 @@
         </div>
     </div>
 
-    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title" id="deleteModalLabel">Confirmation de suppression</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    Êtes-vous sûr de vouloir supprimer ce feedback ? Cette action est irréversible.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
-                    <button type="button" class="btn btn-danger" id="confirm-delete">Supprimer</button>
-                </div>
-            </div>
-        </div>
-    </div>
+
 @endsection
 
 @push('scripts')
     <script src="{{ asset('assets/js/prism/prism.min.js') }}"></script>
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/datatables.css') }}">
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('assets/js/clipboard/clipboard.min.js') }}"></script>
     <script src="{{ asset('assets/js/custom-card/custom-card.js') }}"></script>
     <script src="{{ asset('assets/js/height-equal.js') }}"></script>
@@ -238,8 +220,26 @@
 @endpush
 
 @push('css')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/datatables.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap4.min.css">
+    <style>
+
+    .swal-custom-popup {
+        border-radius: 5px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+
+    .swal-confirm-button-no-border,
+    .swal-cancel-button-no-border {
+        box-shadow: none !important;
+        outline: none !important;
+        border: none !important;
+        border-radius: 5px !important;
+        padding: 10px 24px !important;
+    }
+</style>
 @endpush
 
 

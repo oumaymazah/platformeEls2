@@ -5,54 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Certificat de Réussite</title>
     <style>
-        /* Définition de la taille de la page pour PDF */
-        @page  {
-            size: A4;
-            margin: 0;
-        }
+        @import  url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap');
 
-        /* Réinitialisation des marges pour le corps */
         body {
             margin: 0;
             padding: 20px;
-            background: none; /* Supprime le fond pour impression */
+            background-color: #f5f7fa;
             font-family: 'Poppins', sans-serif;
-            display: block; /* Simplifie le rendu */
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* Conteneur principal avec hauteur minimale */
         .certificate-container {
             width: 100%;
             max-width: 900px;
-            min-height: 1200px; /* Hauteur minimale pour éviter le débordement */
             background: white;
+            position: relative;
             box-shadow: 0 15px 40px rgba(43, 110, 212, 0.15);
             border-radius: 12px;
-            margin: 0 auto;
-            position: relative;
-            overflow: hidden; /* Contient les éléments absolus */
+            overflow: hidden;
+            margin: 30px auto;
         }
 
         .certificate-inner {
-            padding: 15px;
             border: 1px solid rgba(43, 110, 212, 0.08);
+            margin: 15px;
             border-radius: 8px;
+            padding: 15px;
             position: relative;
+            background: #fff;
         }
 
-        /* Logo simplifié */
         .logo-container {
             position: absolute;
             top: 30px;
             left: 40px;
             height: 80px;
-            width: 180px; /* Largeur explicite */
             z-index: 10;
         }
 
         .logo-placeholder {
-            height: 100%;
-            width: 100%;
+            height: 80px;
+            width: 180px;
             background: rgba(43, 110, 212, 0.1);
             display: flex;
             align-items: center;
@@ -62,14 +58,37 @@
             font-size: 14px;
         }
 
-        /* En-tête simplifié */
         .certificate-header {
-            background: #2B6ED4; /* Couleur solide au lieu de dégradé */
+            background: linear-gradient(135deg, #2B6ED4 0%, #1e5bb3 100%);
             color: white;
             padding: 50px 0 40px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;
+        }
+
+        .certificate-header::before {
+            content: "";
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+        }
+
+        .certificate-header::after {
+            content: "";
+            position: absolute;
+            bottom: -80px;
+            right: -80px;
+            width: 250px;
+            height: 250px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
         }
 
         .certificate-title {
@@ -77,6 +96,8 @@
             font-size: 38px;
             font-weight: 900;
             margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
             letter-spacing: 1px;
             padding-top: 10px;
         }
@@ -85,11 +106,12 @@
             font-size: 16px;
             opacity: 0.95;
             font-weight: 300;
+            position: relative;
+            z-index: 1;
             max-width: 80%;
             margin: 0 auto;
         }
 
-        /* Corps du certificat */
         .certificate-body {
             padding: 40px 50px;
             text-align: center;
@@ -127,6 +149,19 @@
             margin: 40px 0;
             flex-wrap: wrap;
             position: relative;
+            z-index: 1;
+        }
+
+        .certificate-details::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(43, 110, 212, 0.05);
+            border-radius: 10px;
+            z-index: -1;
         }
 
         .detail-item {
@@ -149,18 +184,19 @@
             color: #333;
         }
 
-        /* Pied de page simplifié */
         .certificate-footer {
             background: rgba(43, 110, 212, 0.05);
             padding: 30px;
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             border-bottom-left-radius: 8px;
             border-bottom-right-radius: 8px;
         }
 
         .signature {
-            margin: 0 15px;
-            display: inline-block;
+            text-align: center;
+            flex: 1;
         }
 
         .signature-line {
@@ -183,26 +219,58 @@
             padding: 10px;
             border-left: 1px solid #ddd;
             text-align: center;
-            margin-top: 15px;
         }
 
-        /* Sceau avec taille fixe */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 130px;
+            font-weight: bold;
+            color: rgba(43, 110, 212, 0.03);
+            pointer-events: none;
+            user-select: none;
+            white-space: nowrap;
+            font-family: 'Playfair Display', serif;
+        }
+
         .seal {
             position: absolute;
             bottom: 30px;
             right: 30px;
             width: 90px;
-            height: 90px; /* Hauteur explicite */
             opacity: 0.8;
             filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.1));
         }
 
-        /* Police Google Fonts */
-        @import  url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap');
+        .geometric-shape {
+            position: absolute;
+            opacity: 0.05;
+            z-index: 0;
+        }
 
-        /* Styles d'impression */
+        .shape-1 {
+            top: 20%;
+            left: 5%;
+            width: 100px;
+            height: 100px;
+            background: #2B6ED4;
+            transform: rotate(45deg);
+        }
+
+        .shape-2 {
+            bottom: 15%;
+            right: 10%;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #2B6ED4;
+        }
+
         @media  print {
             body {
+                background: none;
                 padding: 0;
             }
             .certificate-container {
@@ -221,13 +289,20 @@
                 <div class="logo-placeholder">Logo du Centre</div>
             </div>
 
-            <!-- En-tête -->
+            <!-- Watermark -->
+            <div class="watermark">Certificat</div>
+
+            <!-- Decorative shapes -->
+            <div class="geometric-shape shape-1"></div>
+            <div class="geometric-shape shape-2"></div>
+
+            <!-- Header -->
             <div class="certificate-header">
                 <h1 class="certificate-title">CERTIFICAT DE RÉUSSITE</h1>
                 <p class="certificate-subtitle">Ce document certifie l'accomplissement avec succès du programme de formation</p>
             </div>
 
-            <!-- Corps -->
+            <!-- Body -->
             <div class="certificate-body">
                 <p class="certificate-text">Décerné à</p>
                 <h2 class="certificate-user"><?php echo e($user->name); ?></h2>
@@ -254,7 +329,7 @@
                 </p>
             </div>
 
-            <!-- Pied de page -->
+            <!-- Footer -->
             <div class="certificate-footer">
                 <div class="signature">
                     <div class="signature-line"></div>
@@ -263,6 +338,7 @@
                 <div class="signature">
                     <div class="signature-line"></div>
                     <p>Le Formateur</p>
+                    <div class="detail-value"><?php echo e($training->user->lastname); ?> <?php echo e($training->user->name); ?></div>
                 </div>
                 <div class="certificate-number">
                     N° <?php echo e($certification->certificate_number); ?>
@@ -270,8 +346,8 @@
                 </div>
             </div>
 
-            <!-- Sceau -->
-            
+            <!-- Seal -->
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNTYiIHI9IjIyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMkI2RUQ0IiBzdHJva2Utd2lkdGg9IjE1Ii8+PGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxODAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzJCNkVENCIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtZGFzaGFycmF5PSI4IDQiLz48dGV4dCB4PSIyNTYiIHk9IjI2MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjcwIiBmaWxsPSIjMkI2RUQ0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7inJM8L3RleHQ+PC9zdmc+" alt="Seal" class="seal">
         </div>
     </div>
 </body>

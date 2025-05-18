@@ -10,6 +10,15 @@ use Illuminate\Http\Request;
 
 class CertificationController extends Controller
 {
+    public function index()
+    {
+        $user = auth()->user();
+        $certifications = Certification::where('user_id', $user->id)
+            ->with('training')//charger la relation training
+            ->orderBy('created_at', 'desc')
+            ->get();
+        return view('certificates.archifageCertif', compact('certifications'));
+    }
     //afficher la certification dans le navvigateur
     public function show(User $user, Training $training)
     {

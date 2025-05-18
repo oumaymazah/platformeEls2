@@ -50,8 +50,8 @@ $(document).ready(function() {
 
                 break;
             case 'certification':
-                url = '#'; // À remplacer par la route vers la certification
-                title = 'Certification';
+                url = PROFILE_URLS.certification;
+                
                 break;
             default:
                 url = PROFILE_URLS.profile;
@@ -76,7 +76,15 @@ $(document).ready(function() {
             }
         });
     }
+    // $(document).on('click', '#certification-tab', function(e) {
+    //     e.preventDefault();
 
+    //     // Mise à jour de l'état actif des onglets
+    //     $('.list-group-item').removeClass('active');
+    //     $(this).addClass('active');
+
+    //     loadTabContent('certification');
+    // });
     // Gérer les clics sur les onglets
     $('.list-group-item').on('click', function(e) {
         e.preventDefault();
@@ -145,7 +153,7 @@ $(document).ready(function() {
         const emailInput = $('#new-email');
         const email = emailInput.val();
 
-       
+
 
         // Vérifier la disponibilité de l'email côté serveur avant d'afficher le modal
         $('#content-loader').show();

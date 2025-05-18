@@ -50,9 +50,11 @@
                                 <a href="#" class="list-group-item list-group-item-action" id="account-tab" data-tab="account">
                                     <i class="fas fa-cog"></i> Paramètres du Compte
                                 </a>
-                                <a href="#" class="list-group-item list-group-item-action" id="certification-tab" data-tab="certification">
-                                    <i class="fas fa-certificate"></i> Certification
-                                </a>
+                                <?php if(auth()->user()->hasRole('etudiant') ): ?>
+                                    <a href="#" class="list-group-item list-group-item-action" id="certification-tab" data-tab="certification">
+                                        <i class="fas fa-certificate"></i> Certification
+                                    </a>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -60,7 +62,7 @@
 
                 <div class="col-xl-8">
                     <div class="card">
-                        
+
                         <div class="card-body">
                             <div id="alert-container"></div>
                             <div class="loader" id="content-loader"></div>
@@ -87,7 +89,8 @@
         verifyPassword: "<?php echo e(route('profile.verifyPassword')); ?>",
         sendCode: "<?php echo e(route('profile.sendEmailVerificationCode')); ?>",
         validateCode: "<?php echo e(route('profile.validateCode')); ?>",
-        verifyEmail: "<?php echo e(route('profile.verifyEmail')); ?>"
+        verifyEmail: "<?php echo e(route('profile.verifyEmail')); ?>",
+        certification: "<?php echo e(route('certificates.index')); ?>"
     };
 </script>
 <script src="<?php echo e(asset('assets/ajax/profile/editProfile.js')); ?>"></script>

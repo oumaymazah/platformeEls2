@@ -293,7 +293,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::prefix('feedbacks')->group(function () {
 		Route::get('/', [FeedbackController::class, 'index'])->name('feedbacks');
-		
+
 		Route::delete('/{id}', [FeedbackController::class, 'destroy'])->name('feedbackdestroy');
 		Route::post('/deleteSelected', [FeedbackController::class, 'deleteSelected'])->name('deleteSelected');
 
@@ -382,6 +382,7 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::post('/panier/supprimer', [PanierController::class, 'supprimer'])->name('panier.supprimer');
         Route::get('/mes-reservations', [ReservationController::class, 'showUserReservations'])->name('mes-reservations');
+        Route::get('/certificats', [CertificationController::class, 'index'])->name('certificates.index');
         Route::middleware([ 'extend.quiz.session'])->group(function() {
             // Quiz
             Route::post('/quizzes/{quiz}/start', [QuizAttemptController::class, 'start'])->name('quizzes.start');
@@ -394,7 +395,8 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('/feedbacks', [FeedbackController::class, 'store'])
 
             ->name('feedbacks.store');
-            // Certificats
+
+
             Route::get('/certificats/{user}/formations/{training}/visualiser', [CertificationController::class, 'show'])
                 ->name('certificates.show');
             Route::get('/certificats/{user}/formations/{training}/telecharger', [CertificationController::class, 'download'])

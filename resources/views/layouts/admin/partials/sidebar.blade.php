@@ -202,18 +202,8 @@
 
                         @endhasanyrole
 
-                         {{-- categorie --}}
-                         {{-- <style>
-.nav-link.menu-title:hover {
-  background-color: #CFE2FF !important;
-}
 
-.nav-link.menu-title:hover *  {
-  color: #000000 !important;
-  fill: #000000 !important;
-  stroke: #000000 !important;
-}
-                         </style> --}}
+                         
                         @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('super-admin'))
 
 
