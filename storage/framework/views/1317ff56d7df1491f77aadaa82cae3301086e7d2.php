@@ -9,9 +9,7 @@
             </div>
          </div>
 
-        {{-- <div class="card-body pb-0 pt-3">
-            <h5 class="mb-0">Liste des Réservations des Étudiants</h5>
-        </div> --}}
+        
 
                     <!-- Nouvelle carte de filtrage avec espace -->
                     <div class="card-body pb-0">
@@ -27,8 +25,8 @@
                                             </span>
                                             <select class="form-select filter-select" id="reservation-status-filter" aria-label="Filtrer par statut">
                                                 <option value="">Tous les statuts</option>
-                                                <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>En attente</option>
-                                                <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Confirmées</option>
+                                                <option value="0" <?php echo e(request('status') == '0' ? 'selected' : ''); ?>>En attente</option>
+                                                <option value="1" <?php echo e(request('status') == '1' ? 'selected' : ''); ?>>Confirmées</option>
                                             </select>
                                         </div>
                                     </div>
@@ -39,10 +37,8 @@
                                                 <i class="fas fa-search"></i>
                                             </span>
                                             <input type="text" class="form-control" placeholder="Rechercher par ID réservation,ou téléphone..."
-                                                id="reservation-search-input" value="{{ request('search') ?? '' }}">
-                                            {{-- <button class="btn btn-primary" type="button" id="apply-reservation-filters">
-                                                <i class="fas fa-filter"></i>
-                                            </button> --}}
+                                                id="reservation-search-input" value="<?php echo e(request('search') ?? ''); ?>">
+                                            
                                         </div>
                                     </div>
 
@@ -73,63 +69,65 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($studentsWithReservations as $student)
-                                    <tr data-reservation-id="{{ $student['reservation_id'] }}" >
-                                        <td class="fw-bold">{{ $student['reservation_id'] }}</td>
-                                        <td>{{ $student['nom'] }} {{ $student['prenom'] }}</td>
-                                        <td>{{ $student['telephone'] }}</td>
+                                    <?php $__empty_1 = true; $__currentLoopData = $studentsWithReservations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $student): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                    <tr data-reservation-id="<?php echo e($student['reservation_id']); ?>" >
+                                        <td class="fw-bold"><?php echo e($student['reservation_id']); ?></td>
+                                        <td><?php echo e($student['nom']); ?> <?php echo e($student['prenom']); ?></td>
+                                        <td><?php echo e($student['telephone']); ?></td>
                                         <td>
-                                            <span class="badge {{ $student['status'] == 0 ? 'bg-danger' : 'bg-primary' }} px-2 py-1">
-                                                <i class="fas {{ $student['status'] == 0 ? 'fa-clock' : 'fa-check-circle' }} me-1"></i>
-                                                {{ $student['status_text'] }}
+                                            <span class="badge <?php echo e($student['status'] == 0 ? 'bg-danger' : 'bg-primary'); ?> px-2 py-1">
+                                                <i class="fas <?php echo e($student['status'] == 0 ? 'fa-clock' : 'fa-check-circle'); ?> me-1"></i>
+                                                <?php echo e($student['status_text']); ?>
+
                                             </span>
                                         </td>
                                         <td>
-                                            @if($student['payment_date'])
-                                                {{ \Carbon\Carbon::parse($student['payment_date'])->format('d/m/Y H:i') }}
-                                            @else
+                                            <?php if($student['payment_date']): ?>
+                                                <?php echo e(\Carbon\Carbon::parse($student['payment_date'])->format('d/m/Y H:i')); ?>
+
+                                            <?php else: ?>
                                             <span class="text-muted" style="margin-left: 70px"> - </span>
 
-                                            @endif
+                                            <?php endif; ?>
                                         </td>
                                         <td class="text-center">
                                             <div class="d-flex gap-1 justify-content-center">
-                                                @if($student['status'] == 0)
-                                                    <form method="POST" action="{{ route('reservations.updateStatus') }}">
-                                                        @csrf
-                                                        <input type="hidden" name="reservation_id" value="{{ $student['reservation_id'] }}">
+                                                <?php if($student['status'] == 0): ?>
+                                                    <form method="POST" action="<?php echo e(route('reservations.updateStatus')); ?>">
+                                                        <?php echo csrf_field(); ?>
+                                                        <input type="hidden" name="reservation_id" value="<?php echo e($student['reservation_id']); ?>">
                                                         <input type="hidden" name="status" value="1">
                                                         <button type="submit" class="btn btn-success btn-sm py-1 px-2" title="Valider cette réservation">
                                                             <i class="fas fa-check"></i>
                                                         </button>
                                                     </form>
-                                                @else
-                                                    <form method="POST" action="{{ route('reservations.updateStatus') }}">
-                                                        @csrf
-                                                        <input type="hidden" name="reservation_id" value="{{ $student['reservation_id'] }}">
+                                                <?php else: ?>
+                                                    <form method="POST" action="<?php echo e(route('reservations.updateStatus')); ?>">
+                                                        <?php echo csrf_field(); ?>
+                                                        <input type="hidden" name="reservation_id" value="<?php echo e($student['reservation_id']); ?>">
                                                         <input type="hidden" name="status" value="0">
                                                         <button type="submit" class="btn btn-sm py-1 px-2" style="background-color: #907b75; border-color: #907b75; color: white;" title="Annuler la validation">                                                <i class="fas fa-times"></i>
                                                         </button>
                                                     </form>
-                                                @endif
+                                                <?php endif; ?>
 
 
                                                 <div class="dropdown dropdown-user-actions">
                                                     <button class="btn btn-sm btn-light dropdown-toggle py-1 px-2" type="button"
-                                                            id="dropdownMenuButton-{{ $student['reservation_id'] }}" data-bs-toggle="dropdown"
+                                                            id="dropdownMenuButton-<?php echo e($student['reservation_id']); ?>" data-bs-toggle="dropdown"
                                                             aria-expanded="false">
                                                             <i class="fas fa-ellipsis-h" aria-hidden="true"></i>
                                                     </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton-{{ $student['reservation_id'] }}">
+                                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton-<?php echo e($student['reservation_id']); ?>">
                                                         <li>
-                                                            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#formationsModal{{ $student['reservation_id'] }}">
-                                                                <i class="fas fa-book-open me-2"></i> Voir formations ({{ count($student['formations']) }})
+                                                            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#formationsModal<?php echo e($student['reservation_id']); ?>">
+                                                                <i class="fas fa-book-open me-2"></i> Voir formations (<?php echo e(count($student['formations'])); ?>)
                                                             </button>
                                                         </li>
                                                         <li>
-                                                            <form method="POST" action="{{ route('reservations.updateStatus') }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer définitivement cette réservation ? Cette action est irréversible.')" class="d-inline">
-                                                                @csrf
-                                                                <input type="hidden" name="reservation_id" value="{{ $student['reservation_id'] }}">
+                                                            <form method="POST" action="<?php echo e(route('reservations.updateStatus')); ?>" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer définitivement cette réservation ? Cette action est irréversible.')" class="d-inline">
+                                                                <?php echo csrf_field(); ?>
+                                                                <input type="hidden" name="reservation_id" value="<?php echo e($student['reservation_id']); ?>">
                                                                 <button type="submit" class="dropdown-item text-danger">
                                                                     <i class="fas fa-trash-alt me-2"></i> Supprimer
                                                                 </button>
@@ -141,8 +139,8 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    {{-- @endforeach --}}
-                                    @empty
+                                    
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                     <tr>
                                         <td colspan="7" class="empty-state">
                                             <div class="empty-content">
@@ -152,82 +150,84 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    @endforelse
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
 
-                        @if($reservations->hasPages())
+                        <?php if($reservations->hasPages()): ?>
                             <div class="pagination-wrapper mt-4">
                                 <div class="pagination-info text-muted small mb-2">
                                     <i class="fas fa-file-alt me-1"></i> Affichage de
-                                    <span class="fw-bold">{{ $reservations->firstItem() }}</span>
-                                    à <span class="fw-bold">{{ $reservations->lastItem() }}</span>
-                                    sur <span class="fw-bold">{{ $reservations->total() }}</span> réservations
+                                    <span class="fw-bold"><?php echo e($reservations->firstItem()); ?></span>
+                                    à <span class="fw-bold"><?php echo e($reservations->lastItem()); ?></span>
+                                    sur <span class="fw-bold"><?php echo e($reservations->total()); ?></span> réservations
                                 </div>
 
                                 <div class="pagination-controls">
                                     <ul class="pagination custom-pagination justify-content-center">
-                                        {{-- Lien Précédent --}}
-                                        <li class="page-item {{ $reservations->onFirstPage() ? 'disabled' : '' }}">
+                                        
+                                        <li class="page-item <?php echo e($reservations->onFirstPage() ? 'disabled' : ''); ?>">
                                             <a class="page-link"
-                                            href="{{ $reservations->appends(request()->except('page'))->previousPageUrl() }}"
+                                            href="<?php echo e($reservations->appends(request()->except('page'))->previousPageUrl()); ?>"
                                             aria-label="Précédent"
-                                            @if(!$reservations->onFirstPage()) onclick="return paginateReservations(event)" @endif>
+                                            <?php if(!$reservations->onFirstPage()): ?> onclick="return paginateReservations(event)" <?php endif; ?>>
                                                 <i class="fas fa-chevron-left"></i>
                                             </a>
                                         </li>
 
-                                        {{-- Numéros de page --}}
-                                        @foreach ($reservations->getUrlRange(max(1, $reservations->currentPage() - 2), min($reservations->lastPage(), $reservations->currentPage() + 2)) as $page => $url)
-                                            <li class="page-item {{ $reservations->currentPage() == $page ? 'active' : '' }}">
+                                        
+                                        <?php $__currentLoopData = $reservations->getUrlRange(max(1, $reservations->currentPage() - 2), min($reservations->lastPage(), $reservations->currentPage() + 2)); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $page => $url): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <li class="page-item <?php echo e($reservations->currentPage() == $page ? 'active' : ''); ?>">
                                                 <a class="page-link"
-                                                href="{{ $url }}"
+                                                href="<?php echo e($url); ?>"
                                                 onclick="return paginateReservations(event)">
-                                                    {{ $page }}
+                                                    <?php echo e($page); ?>
+
                                                 </a>
                                             </li>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-                                        {{-- Lien Suivant --}}
-                                        <li class="page-item {{ !$reservations->hasMorePages() ? 'disabled' : '' }}">
+                                        
+                                        <li class="page-item <?php echo e(!$reservations->hasMorePages() ? 'disabled' : ''); ?>">
                                             <a class="page-link"
-                                            href="{{ $reservations->appends(request()->except('page'))->nextPageUrl() }}"
+                                            href="<?php echo e($reservations->appends(request()->except('page'))->nextPageUrl()); ?>"
                                             aria-label="Suivant"
-                                            @if($reservations->hasMorePages()) onclick="return paginateReservations(event)" @endif>
+                                            <?php if($reservations->hasMorePages()): ?> onclick="return paginateReservations(event)" <?php endif; ?>>
                                                 <i class="fas fa-chevron-right"></i>
                                             </a>
                                         </li>
                                     </ul>
                                 </div>
                             </div>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
         </div>
 <!-- Modals for formations -->
-@foreach($studentsWithReservations as $student)
-<div class="modal fade" id="formationsModal{{ $student['reservation_id'] }}" tabindex="-1" aria-labelledby="formationsModalLabel{{ $student['reservation_id'] }}" aria-hidden="true">
+<?php $__currentLoopData = $studentsWithReservations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $student): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+<div class="modal fade" id="formationsModal<?php echo e($student['reservation_id']); ?>" tabindex="-1" aria-labelledby="formationsModalLabel<?php echo e($student['reservation_id']); ?>" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="formationsModalLabel{{ $student['reservation_id'] }}">
+                <h5 class="modal-title" id="formationsModalLabel<?php echo e($student['reservation_id']); ?>">
                     <i class="fas fa-graduation-cap me-2"></i>
-                    Formations réservées (ID: {{ $student['reservation_id'] }})
+                    Formations réservées (ID: <?php echo e($student['reservation_id']); ?>)
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                @if(count($student['formations']) > 0)
+                <?php if(count($student['formations']) > 0): ?>
                     <div class="mb-3">
                         <div class="d-flex justify-content-between mb-2">
                             <h6 class="fw-bold">Nombre total de formations :
-                                <span class="badge bg-primary rounded-pill fs-7">{{ count($student['formations']) }}</span>
+                                <span class="badge bg-primary rounded-pill fs-7"><?php echo e(count($student['formations'])); ?></span>
                             </h6>
                             <h6 class="fw-bold">Date de réservation :
                                 <span class="badge bg-secondary rounded-pill fs-7">
-                                    {{ \Carbon\Carbon::parse($student['reservation_date'])->format('d/m/Y') }}
+                                    <?php echo e(\Carbon\Carbon::parse($student['reservation_date'])->format('d/m/Y')); ?>
+
                                 </span>
                             </h6>
                         </div>
@@ -244,15 +244,15 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @php
+                                <?php
                                 $totalOriginal = 0;
                                 $totalDiscount = 0;
                                 $totalFinal = 0;
                                 $hasAnyDiscount = false;
-                                @endphp
+                                ?>
 
-                                @foreach($student['formations'] as $formation)
-                                    @php
+                                <?php $__currentLoopData = $student['formations']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $formation): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php
                                     $originalPrice = $formation['price'];
                                     $discount = $formation['discount'] ?? 0;
                                     $discountAmount = 0;
@@ -267,121 +267,69 @@
                                     $totalOriginal += $originalPrice;
                                     $totalDiscount += $discountAmount;
                                     $totalFinal += $finalPrice;
-                                    @endphp
+                                    ?>
 
                                     <tr>
                                         <td style="color: black;">
                                             <i class="fas fa-certificate text-primary me-2"></i>
-                                            {{ $formation['title'] }}
+                                            <?php echo e($formation['title']); ?>
+
                                         </td>
-                                        <td class="text-end" style="color: black;">{{ number_format($originalPrice, 2) }} Dt</td>
+                                        <td class="text-end" style="color: black;"><?php echo e(number_format($originalPrice, 2)); ?> Dt</td>
                                         <td class="text-end">
-                                            @if($discount > 0)
+                                            <?php if($discount > 0): ?>
                                                 <span class="text-danger">
-                                                    <small>{{ $discount }}%</small>
+                                                    <small><?php echo e($discount); ?>%</small>
                                                 </span>
-                                            @else
+                                            <?php else: ?>
                                                 <span class="text-muted">-</span>
-                                            @endif
+                                            <?php endif; ?>
                                         </td>
-                                        <td class="text-end fw-bold" style="color: black;">{{ number_format($finalPrice, 2) }} Dt</td>
+                                        <td class="text-end fw-bold" style="color: black;"><?php echo e(number_format($finalPrice, 2)); ?> Dt</td>
                                     </tr>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </tbody>
                             <tfoot class="table-primary">
                                 <tr>
                                     <th style="color: black;">Total</th>
-                                    @if($hasAnyDiscount)
-                                        <th class="text-end" style="color: black;">{{ number_format($totalOriginal, 2) }} Dt</th>
+                                    <?php if($hasAnyDiscount): ?>
+                                        <th class="text-end" style="color: black;"><?php echo e(number_format($totalOriginal, 2)); ?> Dt</th>
                                         <th class="text-end text-danger">
-                                            @if($totalOriginal > 0)
-                                                <small>{{ number_format(($totalDiscount / $totalOriginal) * 100, 2) }}%</small>
-                                            @endif
+                                            <?php if($totalOriginal > 0): ?>
+                                                <small><?php echo e(number_format(($totalDiscount / $totalOriginal) * 100, 2)); ?>%</small>
+                                            <?php endif; ?>
                                         </th>
-                                        <th class="text-end" style="color: black;">{{ number_format($totalFinal, 2) }} Dt</th>
-                                    @else
+                                        <th class="text-end" style="color: black;"><?php echo e(number_format($totalFinal, 2)); ?> Dt</th>
+                                    <?php else: ?>
                                         <th></th>
                                         <th></th>
-                                        <th class="text-end" style="color: black;">{{ number_format($totalFinal, 2) }} Dt</th>
-                                    @endif
+                                        <th class="text-end" style="color: black;"><?php echo e(number_format($totalFinal, 2)); ?> Dt</th>
+                                    <?php endif; ?>
                                 </tr>
                             </tfoot>
                         </table>
                     </div>
-                @else
+                <?php else: ?>
                     <div class="text-center py-4">
                         <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
                         <p class="lead text-muted">Aucune formation dans cette réservation</p>
                     </div>
-                @endif
+                <?php endif; ?>
             </div>
 
             <div class="modal-footer">
                 <div class="text-end mt-2">
                     <span class="badge px-3 py-2 fs-6" style="background-color: #CFE2FF; color: #161616;">
-                        Prix Total: {{ number_format($totalFinal ?? 0, 2) }} Dt
+                        Prix Total: <?php echo e(number_format($totalFinal ?? 0, 2)); ?> Dt
                     </span>
                 </div>
             </div>
         </div>
     </div>
 </div>
-@endforeach
-
-{{--
-@section('scripts')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
 
-<script>
-    $(document).ready(function() {
-        // À ajouter dans votre fichier JavaScript (AdminManager.js ou équivalent)
-
-    $('#reservations-table').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/French.json'
-        },
-        scrollX: false,
-        order: [[0, 'desc']],
-        responsive: true,
-        stateSave: true,
-        pageLength: 10,
-        lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Tous"]],
-        dom: '<"d-flex justify-content-between align-items-center mb-3"lf>rt<"d-flex justify-content-between align-items-center mt-3"ip>',
-        initComplete: function() {
-            $('.dataTables_length select').addClass('form-select form-select-sm');
-            $('.dataTables_filter input').addClass('form-control form-control-sm');
-        },
-        columnDefs: [
-            { "width": "4%", "targets": 0 },
-            { "width": "18%", "targets": 1 },
-            { "width": "10%", "targets": 2 },
-            { "width": "16%", "targets": 3 },
-            { "width": "8%", "targets": 4 },
-            { "width": "12%", "targets": 5 },
-            { "width": "18%", "targets": 6 }
-        ]
-    });
-
-
-
-    // Ajuster la position des dropdowns qui pourraient être coupés
-    $(document).on('show.bs.dropdown', '.dropdown-role-actions', function() {
-        const $dropdownMenu = $(this).find('.dropdown-menu');
-        const dropdownPosition = $dropdownMenu.offset();
-        const tableWidth = $('.table-responsive').width();
-        const windowWidth = $(window).width();
-
-        // S'assurer que le dropdown ne dépasse pas à droite
-        if (dropdownPosition.left + $dropdownMenu.outerWidth() > windowWidth) {
-            $dropdownMenu.addClass('dropdown-menu-end');
-        }
-    });
-});
-</script> --}}
 <style>
      /* Empty State */
 
@@ -631,3 +579,4 @@
 
 </style>
 
+<?php /**PATH C:\Users\msi\Desktop\Centre_Formation-main\resources\views/admin/apps/reservations/reservations-list.blade.php ENDPATH**/ ?>

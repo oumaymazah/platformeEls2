@@ -6,6 +6,7 @@ namespace App\Models;
 use App\Models\Training;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Barryvdh\Snappy\Facades\SnappyPdf;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -43,8 +44,11 @@ class Certification extends Model
             'training' => $this->training,
             'certification' => $this
         ]);
+         // Options pour le format paysage et sans marges
+
 
         return $pdf; // Retourne l'instance sans streamer
     }
+
 
 }

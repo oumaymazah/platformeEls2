@@ -23,7 +23,7 @@
                             <i class="fas fa-check-circle"></i>
                         </div>
                         <div class="stat-content">
-                            <span class="stat-value">{{ $attempts->where('passed', true)->count() }}</span>
+                            <span class="stat-value"><?php echo e($attempts->where('passed', true)->count()); ?></span>
                             <span class="stat-label">Réussites</span>
                         </div>
                     </div>
@@ -32,7 +32,7 @@
                             <i class="fas fa-times-circle"></i>
                         </div>
                         <div class="stat-content">
-                            <span class="stat-value">{{ $attempts->where('passed', false)->count() }}</span>
+                            <span class="stat-value"><?php echo e($attempts->where('passed', false)->count()); ?></span>
                             <span class="stat-label">Échecs</span>
                         </div>
                     </div>
@@ -41,7 +41,7 @@
                             <i class="fas fa-exclamation-triangle"></i>
                         </div>
                         <div class="stat-content">
-                            <span class="stat-value">{{ $attempts->where('tab_switches', '>=', 2)->count() }}</span>
+                            <span class="stat-value"><?php echo e($attempts->where('tab_switches', '>=', 2)->count()); ?></span>
                             <span class="stat-label">Tentatives de triche</span>
                         </div>
                     </div>
@@ -52,12 +52,12 @@
             <div class="filters-section">
                 <div class="filters-header">
                     <h3><i class="fas fa-filter me-2"></i>Filtres</h3>
-                    <a href="{{ route('admin.quiz-attempts.index') }}" class="btn-reset-all reset-filters">
+                    <a href="<?php echo e(route('admin.quiz-attempts.index')); ?>" class="btn-reset-all reset-filters">
                         <i class="fas fa-sync-alt"></i> Réinitialiser tous les filtres
                     </a>
                 </div>
 
-                <form method="GET" class="advanced-filters filter-form" action="{{ route('admin.quiz-attempts.index') }}">
+                <form method="GET" class="advanced-filters filter-form" action="<?php echo e(route('admin.quiz-attempts.index')); ?>">
                     <div class="filter-row">
                         <div class="filter-item">
                             <label for="training_id">
@@ -65,11 +65,12 @@
                             </label>
                             <select name="training_id" id="training_id" class="form-control">
                                 <option value="">Toutes formations</option>
-                                @foreach($trainings as $training)
-                                    <option value="{{ $training->id }}" {{ request('training_id') == $training->id ? 'selected' : '' }}>
-                                        {{ $training->title }}
+                                <?php $__currentLoopData = $trainings; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $training): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($training->id); ?>" <?php echo e(request('training_id') == $training->id ? 'selected' : ''); ?>>
+                                        <?php echo e($training->title); ?>
+
                                     </option>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
 
@@ -79,11 +80,12 @@
                             </label>
                             <select name="quiz_type" id="quiz_type" class="form-control">
                                 <option value="">Tous types</option>
-                                @foreach($quizTypes as $key => $type)
-                                    <option value="{{ $key }}" {{ request('quiz_type') == $key ? 'selected' : '' }}>
-                                        {{ $type }}
+                                <?php $__currentLoopData = $quizTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($key); ?>" <?php echo e(request('quiz_type') == $key ? 'selected' : ''); ?>>
+                                        <?php echo e($type); ?>
+
                                     </option>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
 
@@ -91,7 +93,7 @@
                             <label for="date">
                                 <i class="fas fa-calendar-alt filter-icon"></i> Date
                             </label>
-                            <input type="date" name="date" id="date" class="form-control" value="{{ request('date') }}">
+                            <input type="date" name="date" id="date" class="form-control" value="<?php echo e(request('date')); ?>">
                         </div>
 
                         <div class="filter-actions">
@@ -117,61 +119,62 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($attempts as $attempt)
+                        <?php $__empty_1 = true; $__currentLoopData = $attempts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $attempt): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                         <tr class="data-row">
                             <td>
                                 <div class="user-info">
-                                    <span>{{ $attempt->user->name }} {{ $attempt->user->lastname ?? '' }}</span>
+                                    <span><?php echo e($attempt->user->name); ?> <?php echo e($attempt->user->lastname ?? ''); ?></span>
                                 </div>
                             </td>
                             <td>
                                 <div class="quiz-info">
-                                    <span class="quiz-title">{{ $attempt->quiz->title }}</span>
+                                    <span class="quiz-title"><?php echo e($attempt->quiz->title); ?></span>
                                 </div>
                             </td>
                             <td>
                                 <div class="training-pill">
-                                    {{ $attempt->quiz->training->title }}
+                                    <?php echo e($attempt->quiz->training->title); ?>
+
                                 </div>
                             </td>
                             <td>
-                                @if($attempt->isCheated())
+                                <?php if($attempt->isCheated()): ?>
                                     <span class="status-badge warning">
                                         <i class="fas fa-exclamation-triangle me-1"></i> Triche
                                     </span>
-                                @else
-                                    <span class="status-badge {{ $attempt->passed ? 'success' : 'danger' }}">
-                                        @if($attempt->passed)
+                                <?php else: ?>
+                                    <span class="status-badge <?php echo e($attempt->passed ? 'success' : 'danger'); ?>">
+                                        <?php if($attempt->passed): ?>
                                             <i class="fas fa-check-circle me-1"></i> Réussi
-                                        @else
+                                        <?php else: ?>
                                             <i class="fas fa-times-circle me-1"></i> Échoué
-                                        @endif
+                                        <?php endif; ?>
                                     </span>
-                                @endif
+                                <?php endif; ?>
                             </td>
                             <td>
                                 <div class="date-info">
-                                    <div class="date-day">{{ $attempt->created_at->format('d/m/Y') }}</div>
-                                    <div class="date-time">{{ $attempt->created_at->format('H:i') }}</div>
+                                    <div class="date-day"><?php echo e($attempt->created_at->format('d/m/Y')); ?></div>
+                                    <div class="date-time"><?php echo e($attempt->created_at->format('H:i')); ?></div>
                                 </div>
                             </td>
                             <td>
                                 <div class="dropdown dropdown-evaluation-actions">
                                     <button class="btn btn-sm btn-light dropdown-toggle" type="button"
-                                            id="dropdownMenuButton-{{ $attempt->id }}" data-bs-toggle="dropdown"
+                                            id="dropdownMenuButton-<?php echo e($attempt->id); ?>" data-bs-toggle="dropdown"
                                             aria-expanded="false">
                                             <i class="fas fa-ellipsis-h" aria-hidden="true"></i>
                                     </button>
-                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton-{{ $attempt->id }}">
+                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton-<?php echo e($attempt->id); ?>">
                                         <li>
                                             <a class="dropdown-item view-quiz-detail" href="#"
-                                               data-url="{{ route('admin.quiz-attempts.show', $attempt->id) }}" id="load-quiz-detail">
+                                               data-url="<?php echo e(route('admin.quiz-attempts.show', $attempt->id)); ?>" id="load-quiz-detail">
                                                 <i class="fa fa-info-circle"></i> plus d'info
                                             </a>
                                         </li>
                                         <li>
                                             <a class="dropdown-item delete-role" href="#"
-                                               data-url="{{ route('admin.quiz-attempts.destroy', $attempt) }}">
+                                               data-url="<?php echo e(route('admin.quiz-attempts.destroy', $attempt)); ?>">
                                                 <i class="fas fa-trash me-2"></i> Supprimer
                                             </a>
                                         </li>
@@ -179,7 +182,7 @@
                                 </div>
                             </td>
                         </tr>
-                        @empty
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <tr>
                             <td colspan="7" class="empty-state">
                                 <div class="empty-content">
@@ -189,47 +192,47 @@
                                 </div>
                             </td>
                         </tr>
-                        @endforelse
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
 
             <!-- Pagination améliorée -->
-            @if($attempts->hasPages())
+            <?php if($attempts->hasPages()): ?>
                 <div class="pagination-wrapper">
                     <div class="pagination-info">
                         <i class="fas fa-file-alt me-1"></i> Affichage de
-                        <span class="highlight">{{ $attempts->firstItem() }}</span>
-                        à <span class="highlight">{{ $attempts->lastItem() }}</span>
-                        sur <span class="highlight">{{ $attempts->total() }}</span> résultats
+                        <span class="highlight"><?php echo e($attempts->firstItem()); ?></span>
+                        à <span class="highlight"><?php echo e($attempts->lastItem()); ?></span>
+                        sur <span class="highlight"><?php echo e($attempts->total()); ?></span> résultats
                     </div>
 
                     <div class="pagination-controls">
                         <ul class="pagination custom-pagination">
-                            {{-- Previous Page Link --}}
-                            <li class="page-item {{ $attempts->onFirstPage() ? 'disabled' : '' }}">
-                                <a class="page-link" href="{{ $attempts->appends(request()->except('page'))->previousPageUrl() }}" aria-label="Précédent">
+                            
+                            <li class="page-item <?php echo e($attempts->onFirstPage() ? 'disabled' : ''); ?>">
+                                <a class="page-link" href="<?php echo e($attempts->appends(request()->except('page'))->previousPageUrl()); ?>" aria-label="Précédent">
                                     <i class="fas fa-chevron-left"></i>
                                 </a>
                             </li>
 
-                            {{-- Pagination Elements --}}
-                            @foreach ($attempts->appends(request()->except('page'))->getUrlRange(1, $attempts->lastPage()) as $page => $url)
-                                <li class="page-item {{ $attempts->currentPage() == $page ? 'active' : '' }}">
-                                    <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                            
+                            <?php $__currentLoopData = $attempts->appends(request()->except('page'))->getUrlRange(1, $attempts->lastPage()); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $page => $url): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <li class="page-item <?php echo e($attempts->currentPage() == $page ? 'active' : ''); ?>">
+                                    <a class="page-link" href="<?php echo e($url); ?>"><?php echo e($page); ?></a>
                                 </li>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-                            {{-- Next Page Link --}}
-                            <li class="page-item {{ !$attempts->hasMorePages() ? 'disabled' : '' }}">
-                                <a class="page-link" href="{{ $attempts->appends(request()->except('page'))->nextPageUrl() }}" aria-label="Suivant">
+                            
+                            <li class="page-item <?php echo e(!$attempts->hasMorePages() ? 'disabled' : ''); ?>">
+                                <a class="page-link" href="<?php echo e($attempts->appends(request()->except('page'))->nextPageUrl()); ?>" aria-label="Suivant">
                                     <i class="fas fa-chevron-right"></i>
                                 </a>
                             </li>
                         </ul>
                     </div>
                 </div>
-            @endif
+            <?php endif; ?>
         </div>
     </div>
 </div>
@@ -925,7 +928,7 @@
         color: var(--primary);
     }
 
-    @keyframes spin {
+    @keyframes  spin {
         to {
             transform: rotate(360deg);
         }
@@ -1006,7 +1009,7 @@
         }
     }
 
-    @keyframes fadeIn {
+    @keyframes  fadeIn {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
     }
@@ -1055,3 +1058,4 @@
         window.addEventListener('scroll', animateOnScroll);
     });
 </script>
+<?php /**PATH C:\Users\msi\Desktop\Centre_Formation-main\resources\views/admin/quizzes/attempts-details.blade.php ENDPATH**/ ?>

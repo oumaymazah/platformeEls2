@@ -72,6 +72,9 @@ class QuizAttemptController extends Controller
 
         // Vérifier si la session contient déjà l'ordre des questions pour cette tentative
         $sessionKey = 'quiz_' . $attempt->id . '_questions';
+        if (!$request->session()->has('_token')) {
+            $request->session()->regenerateToken();
+        }
 
         if (session()->has($sessionKey)) {
             // Utiliser l'ordre des questions sauvegardé en session
