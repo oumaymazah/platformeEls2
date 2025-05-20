@@ -349,6 +349,17 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('formation/store', [FormationController::class, 'store'])->name('formationstore');
     Route::get('/training/{id}', [TrainingDetailController::class, 'show'])
     ->name('training.detail');
+    Route::get('/reservations/check', [ReservationController::class, 'checkReservation']);
+    Route::post('/reservations/create', [ReservationController::class, 'create']);
+    Route::get('/user/check-auth', [ReservationController::class, 'checkAuth']);
+    Route::get('/panier/items-count', [ReservationController::class, 'checkCartNotEmpty']);
+    Route::get('/panier/formations-status', [ReservationController::class, 'checkCartFormationsStatus']);
+
+
+    Route::get('/reservations/data', [ReservationController::class, 'getReservationsData'])->name('reservations.data');
+
+
+
 
 
     // Route pour récupérer le contenu d'une leçon via AJAX

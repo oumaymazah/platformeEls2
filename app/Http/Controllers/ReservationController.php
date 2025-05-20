@@ -1,252 +1,259 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use App\Models\Cart;
 use App\Models\Reservation;
 use App\Models\Training;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-
 class ReservationController extends Controller
 {
-    /**
-     * Créer une nouvelle réservation
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    public function cleanEmptyReservationsEndpoint(Request $request)
+    {
+        try {
+            // Mode débogage - ne supprime pas les réservations
+            $debugMode = $request->input('debug', false);
 
+            // Vérifier si l'utilisateur est connecté
+            if (!Auth::check()) {
+                Log::warning('Tentative de nettoyage sans authentification');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vous devez être connecté pour nettoyer les réservations'
+                ], 401);
+            }
 
-     public function create(Request $request)
-{
-    // Vérifier si l'utilisateur est connecté
-    if (!Auth::check()) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Vous devez être connecté pour effectuer une réservation'
-        ], 401);
+            // Rechercher toutes les réservations avec training_data null ou vide
+            $query = Reservation::query();
+
+            // Vérifier s'il y a des réservations avec training_data null
+            $nullCount = (clone $query)->whereNull('training_data')->count();
+            Log::info("Réservations avec training_data NULL: {$nullCount}");
+
+            // Vérifier s'il y a des réservations avec training_data = '[]'
+            $emptyArrayCount = (clone $query)->where('training_data', '[]')->count();
+            Log::info("Réservations avec training_data '[]': {$emptyArrayCount}");
+
+            // Vérifier s'il y a des réservations avec training_data = ''
+            $emptyStringCount = (clone $query)->where('training_data', '')->count();
+            Log::info("Réservations avec training_data '': {$emptyStringCount}");
+
+            // Regrouper les conditions
+            $emptyReservations = $query->whereNull('training_data')
+                ->orWhere('training_data', '[]')
+                ->orWhere('training_data', '')
+                ->get();
+
+            $count = $emptyReservations->count();
+
+            // Afficher les détails de chaque réservation trouvée
+            foreach ($emptyReservations as $reservation) {
+                Log::info("Réservation trouvée: ID={$reservation->id}, training_data=" . json_encode($reservation->training_data));
+            }
+
+            if ($count > 0) {
+                if (!$debugMode) {
+                    // Supprimer les réservations vides
+                    foreach ($emptyReservations as $reservation) {
+                        $reservation->delete();
+                    }
+
+                    Log::info("{$count} réservations vides supprimées avec succès");
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => "{$count} réservations vides supprimées avec succès"
+                    ]);
+                } else {
+                    // En mode débogage, renvoyer juste les informations
+                    return response()->json([
+                        'success' => true,
+                        'message' => "{$count} réservations vides trouvées (mode débogage - pas de suppression)",
+                        'reservations' => $emptyReservations->map(function($r) {
+                            return [
+                                'id' => $r->id,
+                                'training_data' => $r->training_data,
+                                'created_at' => $r->created_at
+                            ];
+                        })
+                    ]);
+                }
+            } else {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Aucune réservation vide trouvée'
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error("Exception lors du nettoyage des réservations: " . $e->getMessage());
+            Log::error($e->getTraceAsString());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors du nettoyage des réservations: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
-    // Récupérer le panier de l'utilisateur
-    $cart = Cart::where('user_id', Auth::id())->first();
-
-    // Vérifier si le panier existe
-    if (!$cart) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Aucun panier trouvé'
-        ], 404);
-    }
-
-    // Vérifier si le panier a des formations
-    if (empty($cart->training_ids)) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Votre panier est vide'
-        ], 400);
-    }
-
-    try {
-        // Récupérer les données complètes des formations pour les stocker
-        $trainingsData = null;
+    public function create(Request $request)
+    {
+        // Vérifier si l'utilisateur est connecté
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vous devez être connecté pour effectuer une réservation'
+            ], 401);
+        }
+        // Récupérer le panier de l'utilisateur
+        $cart = Cart::where('user_id', Auth::id())->first();
+        // Vérifier si le panier existe
+        if (!$cart) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Aucun panier trouvé'
+            ], 404);
+        }
+        // Vérifier si le panier a des formations
+        if (empty($cart->training_ids)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Votre panier est vide'
+            ], 400);
+        }
+ // Dans la méthode create() autour de la ligne 191
+       try {
+        $trainingIds = [];
         if (!empty($cart->training_ids)) {
             $trainings = Training::whereIn('id', $cart->training_ids)->get();
 
-            // Stocker toutes les informations importantes des formations
-            $trainingsData = $trainings->map(function($training) {
-                // Calculer le prix final avec la remise
-                $finalPrice = $training->discount > 0
-                    ? $training->price * (1 - $training->discount / 100)
-                    : $training->price;
-
-                return [
-                    'id' => (int)$training->id,  // Convertir explicitement en entier
-                    'title' => $training->title,
-                    'description' => $training->description,
-                    'duration' => $training->duration,
-                    'type' => $training->type,
-                    'status' => $training->status,
-                    'start_date' => $training->start_date,
-                    'end_date' => $training->end_date,
-                    'price' => $training->price,
-                    'discount' => $training->discount ?? 0,
-                    'final_price' => $finalPrice,
-                    'image' => $training->image,
-                    'user_id' => (int)$training->user_id,  // Également converti en entier
-                    'instructor_name' => $training->user ? $training->user->name : null,
-                    'total_seats' => (int)$training->total_seats,  // Convertir en entier
-                    'remaining_seats' => (int)$training->remaining_seats,  // Convertir en entier
-                    'created_at' => $training->created_at,
-                    'updated_at' => $training->updated_at
-                ];
+            // Convertir explicitement chaque ID en string
+            $trainingIds = $trainings->pluck('id')->map(function($id) {
+                return (string)$id; // Conversion forcée en string
             })->toArray();
+
+            Log::info('IDs convertis en strings', [
+                'training_ids' => $trainingIds,
+                'training_ids_count' => count($trainingIds)
+            ]);
+        }
+            // Créer la réservation
+            $reservation = new Reservation();
+            $reservation->cart_id = $cart->id;
+            $reservation->user_id = Auth::id();
+        $reservation->training_data = $trainingIds; // Maintenant toujours des strings
+            $reservation->reservation_date = $request->input('reservation_date', now()->toDateString());
+            $reservation->reservation_time = $request->input('reservation_time', now()->toTimeString());
+            $reservation->status = false; // Non payé par défaut
+            $reservation->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Réservation effectuée avec succès',
+                'reservation_id' => $reservation->id,
+                'clearCart' => true
+            ]);
+        } catch (\Exception $e) {
+            // Log l'erreur pour le débogage
+            Log::error('Erreur lors de la création de la réservation: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la création de la réservation: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+ private function synchronizeTrainingData($userId, $trainingIds)
+    {
+        // Récupérer toutes les réservations en attente de l'utilisateur
+        $pendingReservations = Reservation::where('user_id', $userId)
+            ->where('status', 0)
+            ->get();
+
+        if ($pendingReservations->isEmpty()) {
+            return; // Pas de réservations à synchroniser
         }
 
-        // Créer la réservation
-        $reservation = new Reservation();
-        $reservation->cart_id = $cart->id;
-        $reservation->user_id = Auth::id();
-        $reservation->training_data = $trainingsData; // Stocker toutes les données des formations
-        $reservation->reservation_date = $request->input('reservation_date', now()->toDateString());
-        $reservation->reservation_time = $request->input('reservation_time', now()->toTimeString());
-        $reservation->status = false; // Non payé par défaut
+        // Vérifier que les IDs des formations existent
+        $existingTrainingIds = Training::whereIn('id', $trainingIds)
+        ->pluck('id')
+        ->map(function($id) {
+            return (string)$id; // Conversion en string
+        })->toArray();
+
+    foreach ($pendingReservations as $reservation) {
+        $reservation->training_data = $existingTrainingIds; // Stockage en strings
         $reservation->save();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Réservation effectuée avec succès',
-            'reservation_id' => $reservation->id,
-            'clearCart' => true
+        Log::info("Mise à jour des IDs (strings) dans la réservation {$reservation->id}", [
+            'training_ids_count' => count($existingTrainingIds)
         ]);
-    } catch (\Exception $e) {
-        // Log l'erreur pour le débogage
-        Log::error('Erreur lors de la création de la réservation: ' . $e->getMessage());
-        Log::error($e->getTraceAsString());
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Erreur lors de la création de la réservation: ' . $e->getMessage()
-        ], 500);
     }
 }
 
-//       public function create(Request $request)
-// {
-//     // Vérifier si l'utilisateur est connecté
-//     if (!Auth::check()) {
-//         return response()->json([
-//             'success' => false,
-//             'message' => 'Vous devez être connecté pour effectuer une réservation'
-//         ], 401);
-//     }
+    // private function synchronizeTrainingData($userId, $trainingIds)
+    // {
+    //     // Récupérer toutes les réservations en attente de l'utilisateur
+    //     $pendingReservations = Reservation::where('user_id', $userId)
+    //         ->where('status', 0)
+    //         ->get();
 
-//     // Récupérer le panier de l'utilisateur
-//     $cart = Cart::where('user_id', Auth::id())->first();
+    //     if ($pendingReservations->isEmpty()) {
+    //         return; // Pas de réservations à synchroniser
+    //     }
 
-//     // Vérifier si le panier existe
-//     if (!$cart) {
-//         return response()->json([
-//             'success' => false,
-//             'message' => 'Aucun panier trouvé'
-//         ], 404);
-//     }
+    //     // Vérifier que les IDs des formations existent
+    //     $existingTrainingIds = Training::whereIn('id', $trainingIds)->pluck('id')->toArray();
 
-//     // Vérifier si le panier a des formations
-//     // Attention : training_ids est déjà un tableau grâce au cast, pas besoin de json_decode
-//     if (empty($cart->training_ids)) {
-//         return response()->json([
-//             'success' => false,
-//             'message' => 'Votre panier est vide'
-//         ], 400);
-//     }
+    //     // Mettre à jour chaque réservation
+    //     foreach ($pendingReservations as $reservation) {
+    //         $reservation->training_data = $existingTrainingIds;
+    //         $reservation->save();
 
-//       try {
-//         // Récupérer les données des formations pour les stocker
-//         $trainingsData = null;
-//         if (!empty($cart->training_ids)) {
-//             $trainings = Training::whereIn('id', $cart->training_ids)->get();
-//             // Stocker les informations essentielles des formations
-//             $trainingsData = $trainings->map(function($training) {
-//                 return [
-//                     'id' => $training->id,
-//                     'title' => $training->title,
-//                     'price' => $training->price,
-//                     'discount' => $training->discount ?? 0,
-//                     'image' =>$training->image,
-//                     'total_seats'=>$training->total_seats,
-//                 ];
-//             })->toArray();
-//         }
+    //         Log::info("Mise à jour des IDs de formation dans la réservation {$reservation->id}", [
+    //             'training_ids_count' => count($existingTrainingIds)
+    //         ]);
+    //     }
+    // }
 
-//         // Créer la réservation
-//         $reservation = new Reservation();
-//         $reservation->cart_id = $cart->id;
-//         $reservation->user_id = Auth::id();
-//         $reservation->training_data = $trainingsData; // Ajouter les données des formations
-//         $reservation->reservation_date = $request->input('reservation_date', Carbon::now()->toDateString());
-//         $reservation->reservation_time = $request->input('reservation_time', Carbon::now()->toTimeString());
-//         $reservation->status = false; // Non payé par défaut
-//         $reservation->save();
+    public function updateTrainingData(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Utilisateur non authentifié'
+            ], 401);
+        }
 
-//         return response()->json([
-//             'success' => true,
-//             'message' => 'Réservation effectuée avec succès',
-//             'reservation_id' => $reservation->id,
-//             'clearCart' => true
-//         ]);
-//     } catch (\Exception $e) {
-//         return response()->json([
-//             'success' => false,
-//             'message' => 'Erreur lors de la création de la réservation: ' . $e->getMessage()
-//         ], 500);
-//     }
-// }
+        $userId = Auth::id();
+        $cart = Cart::where('user_id', $userId)->first();
 
+        if (!$cart) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Panier non trouvé'
+            ], 404);
+        }
+        try {
+            // Synchroniser les IDs de formation avec les réservations
+            $this->synchronizeTrainingData($userId, $cart->training_ids ?? []);
 
+            return response()->json([
+                'success' => true,
+                'message' => 'IDs de formation mis à jour dans les réservations'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la mise à jour des IDs de formation: ' . $e->getMessage());
 
-//     public function create(Request $request)
-// {
-//     // Vérifier si l'utilisateur est connecté
-//     if (!Auth::check()) {
-//         return response()->json([
-//             'success' => false,
-//             'message' => 'Vous devez être connecté pour effectuer une réservation'
-//         ], 401);
-//     }
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la mise à jour: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
-//     // Récupérer le panier de l'utilisateur
-//     $cart = Cart::where('user_id', Auth::id())->first();
-
-//     // Vérifier si le panier existe
-//     if (!$cart) {
-//         return response()->json([
-//             'success' => false,
-//             'message' => 'Aucun panier trouvé'
-//         ], 404);
-//     }
-
-//     // Vérifier si le panier a des formations
-//     // Attention : training_ids est déjà un tableau grâce au cast, pas besoin de json_decode
-//     if (empty($cart->training_ids)) {
-//         return response()->json([
-//             'success' => false,
-//             'message' => 'Votre panier est vide'
-//         ], 400);
-//     }
-
-//     try {
-//         // Créer la réservation
-//         $reservation = new Reservation();
-//         $reservation->cart_id = $cart->id;
-//         $reservation->user_id = Auth::id();
-//         $reservation->reservation_date = $request->input('reservation_date', Carbon::now()->toDateString());
-//         $reservation->reservation_time = $request->input('reservation_time', Carbon::now()->toTimeString());
-//         $reservation->status = false; // Non payé par défaut
-//         $reservation->save();
-//         return response()->json([
-//             'success' => true,
-//             'message' => 'Réservation effectuée avec succès',
-//             'reservation_id' => $reservation->id,
-//             'clearCart' => true
-//         ]);
-//     } catch (\Exception $e) {
-//         return response()->json([
-//             'success' => false,
-//             'message' => 'Erreur lors de la création de la réservation: ' . $e->getMessage()
-//         ], 500);
-//     }
-// }
-    /**
-     * Vérifier si l'utilisateur est authentifié
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function checkAuth()
     {
         return response()->json([
@@ -255,29 +262,28 @@ class ReservationController extends Controller
     }
 
     public function getDetails()
-{
-    $user = Auth::user();
-    $cart = Cart::where('user_id', $user->id)->first();
+    {
+        $user = Auth::user();
+        $cart = Cart::where('user_id', $user->id)->first();
 
-    if (!$cart) {
-        return response()->json(['trainings' => [], 'discount' => 0]);
+        if (!$cart) {
+            return response()->json(['trainings' => [], 'discount' => 0]);
+        }
+
+        $trainings = $cart->getFormations();
+        $discount = 0; // À remplacer par votre logique de remise
+
+        return response()->json([
+            'trainings' => $trainings->map(function($training) {
+                return [
+                    'id' => $training->id,
+                    'title' => $training->title,
+                    'price' => $training->price
+                ];
+            }),
+            'discount' => $discount
+        ]);
     }
-
-    $trainings = $cart->getFormations();
-    $discount = 0; // À remplacer par votre logique de remise
-
-    return response()->json([
-        'trainings' => $trainings->map(function($training) {
-            return [
-                'id' => $training->id,
-                'title' => $training->title,
-                'price' => $training->price
-            ];
-        }),
-        'discount' => $discount
-    ]);
-}
-
 public function checkReservation()
 {
     $userId = Auth::id();
@@ -298,38 +304,91 @@ public function checkReservation()
                                 ->orderBy('created_at', 'desc')
                                 ->first();
 
-    // Si nous avons des articles dans le panier et une réservation confirmée,
-    // il faut créer une nouvelle réservation
-    if ($hasItemsInCart && $confirmedReservation) {
-        return response()->json([
-            'hasReservation' => false,
-            'reservation_id' => null,
-            'shouldCreateNewReservation' => true
-        ]);
+    // Construire une réponse complète
+    $response = [
+        'hasItemsInCart' => $hasItemsInCart,
+        'hasConfirmedReservation' => $confirmedReservation !== null,
+        'hasPendingReservation' => $pendingReservation !== null,
+        'hasReservation' => false,
+        'reservation_id' => null,
+        'shouldCreateNewReservation' => false,
+        'buttonState' => 'reserve' // Par défaut: montrer le bouton "Réserver"
+    ];
+
+    // Si nous avons une réservation en attente, l'utiliser
+    if ($pendingReservation) {
+        $response['hasReservation'] = true;
+        $response['reservation_id'] = $pendingReservation->id;
+        $response['buttonState'] = 'viewReservations'; // Montrer "Voir mes réservations"
     }
 
-    // Utiliser la réservation en attente s'il y en a une
-    if ($pendingReservation) {
-        return response()->json([
-            'hasReservation' => true,
-            'reservation_id' => $pendingReservation->id
-        ]);
+    // Si nous avons des articles dans le panier et une réservation confirmée,
+    // il faut créer une nouvelle réservation
+    elseif ($hasItemsInCart && $confirmedReservation) {
+        $response['shouldCreateNewReservation'] = true;
+        $response['buttonState'] = 'reserve'; // Montrer "Réserver"
     }
 
     // Si une réservation est confirmée mais pas d'articles dans le panier
-    if ($confirmedReservation && !$hasItemsInCart) {
-        return response()->json([
-            'hasReservation' => true,
-            'reservation_id' => $confirmedReservation->id
-        ]);
+    elseif ($confirmedReservation && !$hasItemsInCart) {
+        $response['hasReservation'] = true;
+        $response['reservation_id'] = $confirmedReservation->id;
+        $response['buttonState'] = 'viewReservations'; // Montrer "Voir mes réservations"
     }
 
-    return response()->json([
-        'hasReservation' => false,
-        'reservation_id' => null
-    ]);
+    return response()->json($response);
 }
+    // public function checkReservation()
+    // {
+    //     $userId = Auth::id();
 
+    //     // Récupérer le panier actuel
+    //     $cart = Cart::where('user_id', $userId)->first();
+    //     $hasItemsInCart = $cart && !empty($cart->training_ids);
+
+    //     // Vérifier s'il y a une réservation confirmée (status = 1)
+    //     $confirmedReservation = Reservation::where('user_id', $userId)
+    //                                 ->where('status', 1)
+    //                                 ->orderBy('created_at', 'desc')
+    //                                 ->first();
+
+    //     // Vérifier s'il y a une réservation en attente (status = 0)
+    //     $pendingReservation = Reservation::where('user_id', $userId)
+    //                                 ->where('status', 0)
+    //                                 ->orderBy('created_at', 'desc')
+    //                                 ->first();
+
+    //     // Si nous avons des articles dans le panier et une réservation confirmée,
+    //     // il faut créer une nouvelle réservation
+    //     if ($hasItemsInCart && $confirmedReservation) {
+    //         return response()->json([
+    //             'hasReservation' => false,
+    //             'reservation_id' => null,
+    //             'shouldCreateNewReservation' => true
+    //         ]);
+    //     }
+
+    //     // Utiliser la réservation en attente s'il y en a une
+    //     if ($pendingReservation) {
+    //         return response()->json([
+    //             'hasReservation' => true,
+    //             'reservation_id' => $pendingReservation->id
+    //         ]);
+    //     }
+
+    //     // Si une réservation est confirmée mais pas d'articles dans le panier
+    //     if ($confirmedReservation && !$hasItemsInCart) {
+    //         return response()->json([
+    //             'hasReservation' => true,
+    //             'reservation_id' => $confirmedReservation->id
+    //         ]);
+    //     }
+
+    //     return response()->json([
+    //         'hasReservation' => false,
+    //         'reservation_id' => null
+    //     ]);
+    // }
 public function listStudentsWithReservations(Request $request)
 {
     // Initialiser la requête de base pour les réservations
@@ -480,41 +539,70 @@ public function listStudentsWithReservations(Request $request)
 
 
 
-public function showUserReservations() {
+    public function showUserReservations() {
     // Récupérer toutes les réservations (sans filtrer par utilisateur)
-    $reservations = Reservation::orderBy('created_at', 'desc')->get();
+   $reservations = Reservation::where('user_id', auth()->id())->orderBy('created_at', 'desc')->get();
 
-    // Pour chaque réservation, utiliser les données stockées
+    // Pour chaque réservation, récupérer les formations à partir des IDs stockés
     foreach ($reservations as $reservation) {
         if (!empty($reservation->training_data)) {
-            // Convertir les données stockées en collection
-            $trainings = collect($reservation->training_data)->map(function($trainingData) {
-                $training = new \stdClass();
-                $training->id = $trainingData['id'];
-                $training->title = $trainingData['title'];
-                $training->price = $trainingData['price'];
-                $training->discount = $trainingData['discount'] ?? 0;
-                // Ajouter l'image à l'objet
-                $training->image = $trainingData['image'] ?? null;
+            // Vérifier si training_data est un tableau, sinon essayer de le décoder
+            $trainingIds = $reservation->training_data;
 
-                // Récupérer les données du professeur si disponible
-                $actualTraining = Training::find($training->id);
-                if ($actualTraining && $actualTraining->user) {
-                    $training->user = $actualTraining->user;
+            // S'assurer que nous avons des IDs numériques valides
+            if (is_string($trainingIds)) {
+                try {
+                    $trainingIds = json_decode($trainingIds, true);
+                } catch (\Exception $e) {
+                    Log::error("Erreur lors du décodage des IDs de formation: " . $e->getMessage());
                 }
+            }
 
-                // Calculer les prix avec remise
-                if ($training->discount > 0) {
-                    $discountAmount = ($training->price * $training->discount) / 100;
-                    $training->discount_amount = $discountAmount;
-                    $training->price_after_discount = $training->price - $discountAmount;
-                } else {
-                    $training->discount_amount = 0;
-                    $training->price_after_discount = $training->price;
+            // Filtrer pour ne garder que les ID numériques valides
+            $validIds = [];
+            if (is_array($trainingIds)) {
+                foreach ($trainingIds as $id) {
+                    // Ne garder que les valeurs numériques
+                    if (is_numeric($id)) {
+                        $validIds[] = (int)$id;
+                    }
                 }
+            } elseif (is_numeric($trainingIds)) {
+                $validIds[] = (int)$trainingIds;
+            }
 
-                return $training;
-            });
+            // Log pour débogage
+            Log::info("Reservation #" . $reservation->id . " - Training IDs: " . json_encode($validIds));
+
+            // Récupérer les formations seulement si nous avons des IDs valides
+            $trainings = collect();
+            if (!empty($validIds)) {
+                $trainingDetails = Training::whereIn('id', $validIds)->get();
+
+                // Préparer les objets de formation avec les données calculées
+                $trainings = $trainingDetails->map(function($training) {
+                    $result = new \stdClass();
+                    $result->id = $training->id;
+                    $result->title = $training->title;
+                    $result->price = $training->price;
+                    $result->discount = $training->discount ?? 0;
+                    $result->image = $training->image ?? null;
+
+                    // Ajouter l'utilisateur (professeur)
+                    $result->user = $training->user;
+
+                    // Calculer les prix avec remise
+                    if ($result->discount > 0) {
+                        $result->discount_amount = ($result->price * $result->discount) / 100;
+                        $result->price_after_discount = $result->price - $result->discount_amount;
+                    } else {
+                        $result->discount_amount = 0;
+                        $result->price_after_discount = $result->price;
+                    }
+
+                    return $result;
+                });
+            }
 
             // Calculer le prix total et les remises
             $totalPrice = 0;
@@ -544,295 +632,244 @@ public function showUserReservations() {
 
     return view('admin.apps.reservations.mes-reservations', compact('reservations'));
 }
+    public function cancelReservation(Request $request)
+    {
+        Log::info('==== DÉBUT cancelReservation ====');
+        Log::info('Données de la requête: ' . print_r($request->all(), true));
 
-
-/**
- * Supprime une réservation (version administrateur)
- *
- * @param  \Illuminate\Http\Request  $request
- * @return \Illuminate\Http\Response
- */
-public function cancelReservation(Request $request)
-{
-    Log::info('==== DÉBUT cancelReservation ====');
-    Log::info('Données de la requête: ' . print_r($request->all(), true));
-
-    // Vérifier si l'utilisateur est connecté
-    if (!Auth::check()) {
-        Log::warning('Tentative de suppression sans authentification');
-        return response()->json([
-            'success' => false,
-            'message' => 'Vous devez être connecté pour supprimer une réservation'
-        ], 401);
-    }
-
-    $reservationId = $request->input('reservation_id');
-
-    if (empty($reservationId)) {
-        Log::error('ID de réservation manquant');
-        return response()->json([
-            'success' => false,
-            'message' => 'ID de réservation manquant'
-        ], 400);
-    }
-
-    try {
-        // Rechercher la réservation
-        $reservation = Reservation::find($reservationId);
-
-        if (!$reservation) {
-            Log::warning("Réservation non trouvée: {$reservationId}");
+        // Vérifier si l'utilisateur est connecté
+        if (!Auth::check()) {
+            Log::warning('Tentative de suppression sans authentification');
             return response()->json([
                 'success' => false,
-                'message' => 'Réservation non trouvée'
-            ], 404);
+                'message' => 'Vous devez être connecté pour supprimer une réservation'
+            ], 401);
         }
 
-        // Supprimer la réservation
-        $reservation->delete();
+        $reservationId = $request->input('reservation_id');
 
-        Log::info("Réservation supprimée avec succès - ID: {$reservationId}");
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Réservation supprimée avec succès'
-        ]);
-    } catch (\Exception $e) {
-        Log::error("Exception lors de la suppression: " . $e->getMessage());
-        Log::error($e->getTraceAsString());
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Erreur lors de la suppression de la réservation: ' . $e->getMessage()
-        ], 500);
-    }
-}
-
-
-/**
- * Met à jour le statut d'une réservation
- *
- * @param  \Illuminate\Http\Request  $request
- * @return \Illuminate\Http\Response
- */
-public function updateStatus(Request $request) {
-    // Vérifier si l'utilisateur est connecté
-    if (!Auth::check()) {
-        return redirect()->back()->with('error', 'Vous devez être connecté pour mettre à jour une réservation');
-    }
-
-    // Récupérer les données de la requête
-    $reservationId = $request->input('reservation_id');
-    $newStatus = $request->input('status');
-
-    Log::info("Tentative de mise à jour du statut de la réservation ID: {$reservationId} vers statut: {$newStatus}");
-
-    if (!$reservationId || !in_array($newStatus, [0, 1])) {
-        Log::error("Données invalides: reservation_id={$reservationId}, status={$newStatus}");
-        return redirect()->back()->with('error', 'Données de requête invalides');
-    }
-
-    try {
-        // Trouver la réservation avec l'utilisateur associé
-        $reservation = Reservation::with('user')->find($reservationId);
-
-        if (!$reservation) {
-            Log::error("Réservation non trouvée: {$reservationId}");
-            return redirect()->back()->with('error', 'Réservation non trouvée');
+        if (empty($reservationId)) {
+            Log::error('ID de réservation manquant');
+            return response()->json([
+                'success' => false,
+                'message' => 'ID de réservation manquant'
+            ], 400);
         }
 
-        // Vérifier si l'utilisateur associé existe
-        if (!$reservation->user) {
-            Log::error("Aucun utilisateur associé à la réservation ID: {$reservationId}");
-            return redirect()->back()->with('error', 'Aucun utilisateur associé à cette réservation');
-        }
+        try {
+            // Rechercher la réservation
+            $reservation = Reservation::find($reservationId);
 
-        // Vérifier si l'email de l'utilisateur est défini
-        if (empty($reservation->user->email)) {
-            Log::error("Email utilisateur non défini pour la réservation ID: {$reservationId}, user ID: {$reservation->user_id}");
-            return redirect()->back()->with('error', 'Email utilisateur non défini');
-        }
-
-        Log::info("Email de l'utilisateur: " . $reservation->user->email);
-
-        // Sauvegarder l'ancien statut pour vérifier s'il y a eu un changement
-        $oldStatus = $reservation->status;
-
-        // Récupérer le panier associé à la réservation
-        $cart = Cart::find($reservation->cart_id);
-
-        // Copier les données des formations du panier
-        if ($cart && !empty($cart->training_ids)) {
-            // Récupérer les formations du panier
-            $trainings = Training::whereIn('id', $cart->training_ids)->get();
-
-            // Préparer les données des formations à stocker
-            $trainingsData = $trainings->map(function($training) {
-                return [
-                    'id' => $training->id,
-                    'title' => $training->title,
-                    'price' => $training->price,
-                    'discount' => $training->discount ?? 0,
-                    'image' => $training->image,
-                ];
-            })->toArray();
-
-            // Stocker les données des formations dans la réservation
-            $reservation->training_data = $trainingsData;
-        }
-
-        // Si le statut passe à 1 (payé)
-        if ($newStatus == 1 && $oldStatus != $newStatus) {
-            // Définir la date de paiement
-            $reservation->payment_date = now();
-            Log::info("Date de paiement définie: " . $reservation->payment_date);
-
-            // Mettre à jour le statut de la réservation
-            $reservation->status = $newStatus;
-            $reservation->save();
-
-            // Vider les training_ids du panier
-            if ($cart) {
-                $cart->training_ids = [];
-                $cart->save();
-                Log::info("Panier vidé (ID: {$cart->id}) après confirmation du paiement");
+            if (!$reservation) {
+                Log::warning("Réservation non trouvée: {$reservationId}");
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Réservation non trouvée'
+                ], 404);
             }
 
-            // Envoyer l'email de confirmation
-            try {
-                Log::info("Tentative d'envoi d'email à: " . $reservation->user->email);
+            // Supprimer la réservation
+            $reservation->delete();
 
-                // Calculer le prix total à partir des données stockées
-                $totalPrice = 0;
+            Log::info("Réservation supprimée avec succès - ID: {$reservationId}");
 
-                if (!empty($reservation->training_data)) {
-                    foreach ($reservation->training_data as $trainingData) {
-                        $price = $trainingData['price'];
-                        $discount = $trainingData['discount'] ?? 0;
+            return response()->json([
+                'success' => true,
+                'message' => 'Réservation supprimée avec succès'
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Exception lors de la suppression: " . $e->getMessage());
+            Log::error($e->getTraceAsString());
 
-                        if ($discount > 0) {
-                            $totalPrice += $price - ($price * $discount / 100);
-                        } else {
-                            $totalPrice += $price;
-                        }
-                    }
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la suppression de la réservation: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Met à jour le statut d'une réservation
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updateStatus(Request $request) {
+        // Vérifier si l'utilisateur est connecté
+        if (!Auth::check()) {
+            return redirect()->back()->with('error', 'Vous devez être connecté pour mettre à jour une réservation');
+        }
+
+        // Récupérer les données de la requête
+        $reservationId = $request->input('reservation_id');
+        $newStatus = $request->input('status');
+
+        Log::info("Tentative de mise à jour du statut de la réservation ID: {$reservationId} vers statut: {$newStatus}");
+
+        if (!$reservationId || !in_array($newStatus, [0, 1])) {
+            Log::error("Données invalides: reservation_id={$reservationId}, status={$newStatus}");
+            return redirect()->back()->with('error', 'Données de requête invalides');
+        }
+
+        try {
+            // Trouver la réservation avec l'utilisateur associé
+            $reservation = Reservation::with('user')->find($reservationId);
+
+            if (!$reservation) {
+                Log::error("Réservation non trouvée: {$reservationId}");
+                return redirect()->back()->with('error', 'Réservation non trouvée');
+            }
+
+            // Vérifier si l'utilisateur associé existe
+            if (!$reservation->user) {
+                Log::error("Aucun utilisateur associé à la réservation ID: {$reservationId}");
+                return redirect()->back()->with('error', 'Aucun utilisateur associé à cette réservation');
+            }
+
+            // Vérifier si l'email de l'utilisateur est défini
+            if (empty($reservation->user->email)) {
+                Log::error("Email utilisateur non défini pour la réservation ID: {$reservationId}, user ID: {$reservation->user_id}");
+                return redirect()->back()->with('error', 'Email utilisateur non défini');
+            }
+
+            Log::info("Email de l'utilisateur: " . $reservation->user->email);
+
+            // Sauvegarder l'ancien statut pour vérifier s'il y a eu un changement
+            $oldStatus = $reservation->status;
+
+            // Récupérer le panier associé à la réservation
+            $cart = Cart::find($reservation->cart_id);
+
+            // Si le statut passe à 1 (payé)
+            if ($newStatus == 1 && $oldStatus != $newStatus) {
+                // Définir la date de paiement
+                $reservation->payment_date = now();
+                Log::info("Date de paiement définie: " . $reservation->payment_date);
+
+                // Mettre à jour le statut de la réservation
+                $reservation->status = $newStatus;
+                $reservation->save();
+
+                // Vider les training_ids du panier
+                if ($cart) {
+                    $cart->training_ids = [];
+                    $cart->save();
+                    Log::info("Panier vidé (ID: {$cart->id}) après confirmation du paiement");
                 }
 
-                // Envoyer l'email de confirmation avec le total
-                Mail::to($reservation->user->email)->send(new \App\Mail\ReservationConfirmationMail($reservation, $totalPrice));
+                // Envoyer l'email de confirmation
+                try {
+                    Log::info("Tentative d'envoi d'email à: " . $reservation->user->email);
 
-                Log::info("Email envoyé avec succès");
+                    // Calculer le prix total à partir des IDs stockés
+                    $totalPrice = 0;
 
-                return redirect()->back()->with('success', 'Statut de la réservation mis à jour avec succès et email de confirmation envoyé.');
-            } catch (\Exception $emailError) {
-                // En cas d'erreur d'envoi d'email, enregistrer l'erreur mais continuer
-                Log::error('Erreur lors de l\'envoi de l\'email de confirmation: ' . $emailError->getMessage());
-                Log::error($emailError->getTraceAsString());
-                return redirect()->back()->with('warning', 'Statut de la réservation mis à jour avec succès, mais l\'email de confirmation n\'a pas pu être envoyé: ' . $emailError->getMessage());
+                    if (!empty($reservation->training_data)) {
+                        $trainingDetails = Training::whereIn('id', $reservation->training_data)->get();
+
+                        foreach ($trainingDetails as $training) {
+                            $price = $training->price;
+                            $discount = $training->discount ?? 0;
+
+                            if ($discount > 0) {
+                                $totalPrice += $price - ($price * $discount / 100);
+                            } else {
+                                $totalPrice += $price;
+                            }
+                        }
+                    }
+
+                    // Envoyer l'email de confirmation avec le total
+                    Mail::to($reservation->user->email)->send(new \App\Mail\ReservationConfirmationMail($reservation, $totalPrice));
+
+                    Log::info("Email envoyé avec succès");
+
+                    return redirect()->back()->with('success', 'Statut de la réservation mis à jour avec succès et email de confirmation envoyé.');
+                } catch (\Exception $emailError) {
+                    // En cas d'erreur d'envoi d'email, enregistrer l'erreur mais continuer
+                    Log::error('Erreur lors de l\'envoi de l\'email de confirmation: ' . $emailError->getMessage());
+                    Log::error($emailError->getTraceAsString());
+                    return redirect()->back()->with('warning', 'Statut de la réservation mis à jour avec succès, mais l\'email de confirmation n\'a pas pu être envoyé: ' . $emailError->getMessage());
+                }
+            } else {
+                // Mettre à jour le statut de la réservation
+                $reservation->status = $newStatus;
+
+                // Réinitialiser la date de paiement si le statut n'est pas payé
+                if ($newStatus != 1) {
+                    $reservation->payment_date = null;
+                }
+
+                $reservation->save();
+
+                Log::info("Réservation mise à jour avec succès, ancien statut: {$oldStatus}, nouveau statut: {$newStatus}");
+                return redirect()->back()->with('success', 'Statut de la réservation mis à jour avec succès');
             }
-        } else {
-            // Mettre à jour le statut de la réservation
-            $reservation->status = $newStatus;
 
-            // Réinitialiser la date de paiement si le statut n'est pas payé
-            if ($newStatus != 1) {
-                $reservation->payment_date = null;
-            }
-
-            $reservation->save();
-
-            Log::info("Réservation mise à jour avec succès, ancien statut: {$oldStatus}, nouveau statut: {$newStatus}");
-            return redirect()->back()->with('success', 'Statut de la réservation mis à jour avec succès');
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la mise à jour du statut de réservation: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            return redirect()->back()->with('error', 'Erreur lors de la mise à jour: ' . $e->getMessage());
         }
-
-    } catch (\Exception $e) {
-        Log::error('Erreur lors de la mise à jour du statut de réservation: ' . $e->getMessage());
-        Log::error($e->getTraceAsString());
-        return redirect()->back()->with('error', 'Erreur lors de la mise à jour: ' . $e->getMessage());
     }
 
-}
-
-/**
- * Télécharger la facture de la réservation au format PDF
- *
- * @param  \App\Models\Reservation  $reservation
- * @return \Illuminate\Http\Response
- */
-public function downloadInvoice(Reservation $reservation)
-{
-    // Vérification que l'utilisateur connecté est bien le propriétaire de la réservation
 
 
-    // Génération du PDF
-    $pdf = $reservation->generateInvoicePdf();
+    /**
+     * Télécharger la facture de la réservation au format PDF
+     *
+     * @param  \App\Models\Reservation  $reservation
+     * @return \Illuminate\Http\Response
+     */
+    public function downloadInvoice(Reservation $reservation)
+    {
+        // Génération du PDF
+        $pdf = $reservation->generateInvoicePdf();
 
-    // Construction du nom de fichier
-    $filename = 'facture_reservation_' . $reservation->id . '_' . date('Y-m-d') . '.pdf';
+        // Construction du nom de fichier
+        $filename = 'facture_reservation_' . $reservation->id . '_' . date('Y-m-d') . '.pdf';
 
-    // Retourne le PDF en téléchargement
-    return $pdf->download($filename);
-}
+        // Retourne le PDF en téléchargement
+        return $pdf->download($filename);
+    }
 
-/**
- * Vérifie si l'utilisateur a une réservation confirmée et si le panier contient de nouvelles formations
- *
- * @return \Illuminate\Http\Response
- */
-public function checkNewCartItems()
-{
-    if (!Auth::check()) {
+    /**
+     * Vérifie si l'utilisateur a une réservation confirmée et si le panier contient de nouvelles formations
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function checkNewCartItems()
+    {
+        if (!Auth::check()) {
+            return response()->json([
+                'hasConfirmedReservation' => false
+            ]);
+        }
+
+        $userId = Auth::id();
+
+        // Vérifier si l'utilisateur a une réservation confirmée (status = 1)
+        $confirmedReservation = Reservation::where('user_id', $userId)
+                                    ->where('status', 1)
+                                    ->orderBy('created_at', 'desc')
+                                    ->first();
+
+        // Si l'utilisateur a une réservation confirmée
+        if ($confirmedReservation) {
+            // Vérifier si le panier contient des formations
+            $cart = Cart::where('user_id', $userId)->first();
+
+            if ($cart && !empty($cart->training_ids)) {
+                return response()->json([
+                    'hasConfirmedReservation' => true,
+                    'shouldCreateNewReservation' => true
+                ]);
+            }
+        }
         return response()->json([
-            'hasConfirmedReservation' => false
+            'hasConfirmedReservation' => false,
+            'shouldCreateNewReservation' => false
         ]);
     }
 
-    $userId = Auth::id();
-
-    // Vérifier si l'utilisateur a une réservation confirmée (status = 1)
-    $confirmedReservation = Reservation::where('user_id', $userId)
-                                ->where('status', 1)
-                                ->orderBy('created_at', 'desc')
-                                ->first();
-
-    // Si l'utilisateur a une réservation confirmée
-    if ($confirmedReservation) {
-        // Vérifier si le panier contient des formations
-        $cart = Cart::where('user_id', $userId)->first();
-
-        if ($cart && !empty($cart->training_ids)) {
-            return response()->json([
-                'hasConfirmedReservation' => true,
-                'shouldCreateNewReservation' => true
-            ]);
-        }
-    }
-
-    return response()->json([
-        'hasConfirmedReservation' => false,
-        'shouldCreateNewReservation' => false
-    ]);
-}
-public function destroy($id)
-{
-    // Vérifier si l'utilisateur est connecté
-
-    // Trouver la réservation par ID
-    $reservation = Reservation::find($id);
-
-    if (!$reservation) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Réservation non trouvée'
-        ], 404);
-    }
-
-    // Supprimer la réservation
-    $reservation->delete();
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Réservation supprimée avec succès'
-    ]);
-}
 }
