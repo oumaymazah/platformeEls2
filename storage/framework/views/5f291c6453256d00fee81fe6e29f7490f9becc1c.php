@@ -7,6 +7,7 @@
 <link rel="stylesheet" type="text/css" href="<?php echo e(asset('assets/css/sweetalert2.css')); ?>">
 <link rel="stylesheet" type="text/css" href="<?php echo e(asset('assets/css/datatables.css')); ?>">
 
+
 <style>
     .badge-light { background-color: #f8f9fa; color: #212529; }
     .select2-container--default .select2-selection--multiple .select2-selection__choice {
@@ -39,13 +40,7 @@
 
 <div id="alert-container" class="position-fixed top-0 end-0 p-3" style="max-width: 600px;"></div>
 
-<?php $__env->startComponent('components.breadcrumb'); ?>
-    <?php $__env->slot('breadcrumb_title'); ?>
-        <h3>Gestion des Utilisateurs & Permissions</h3>
-    <?php $__env->endSlot(); ?>
-    <li class="breadcrumb-item">Administration</li>
-    <li class="breadcrumb-item active">Utilisateurs & Permissions</li>
-<?php echo $__env->renderComponent(); ?>
+
 
 <div class="container-fluid">
     <div class="email-wrap bookmark-wrap">
@@ -92,7 +87,7 @@
                                             </a>
                                         </li>
 
-                                            
+
                                             <li>
                                                 <a id="load-reservations" href="javascript:void(0)"
                                                 data-reservations-url="<?php echo e(route('admin.reservations')); ?>"

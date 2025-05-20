@@ -26,13 +26,15 @@ class AdminManager {
       $(document)
         .on('submit', '#create-user-form', (e) => this.handleUserForm(e))
 
+        .on('submit', '.reservation-status-form', (e) => this.toggleReservationStatus(e)); // Ajoutez cette ligne
+
 
 
       // Actions
       $(document)
         .on('click', '.delete-user', (e) => this.deleteItem(e, 'users'))
-
-
+        .on('click', '.delete-evaluation', (e) => this.deleteItem(e, 'evaluations'))
+        .on('click', '.delete-reservation', (e) => this.deleteItem(e, 'reservations'))
         .on('change', '.toggle-status-switch', (e) => this.toggleUserStatus(e))
         .on('click', '.toggle-status-menu', (e) => this.toggleUserStatusMenu(e))
         .on('click', '.view-user-roles', (e) => this.viewUserRoles(e))
@@ -338,8 +340,7 @@ class AdminManager {
             const url = $(e.currentTarget).attr('href');
             console.log("Pagination link clicked, URL:", url);
 
-            // Ajouter un indicateur de chargement
-            // $('#blog-container').append('<div class="loading-overlay"><div class="spinner-border text-primary" role="status"><span class="sr-only">Chargement...</span></div></div>');
+
 
             // Chargement AJAX avec préservation du contexte
             $.ajax({
@@ -582,6 +583,44 @@ class AdminManager {
           });
         });
       }
+
+      toggleReservationStatus(e) {
+            e.preventDefault(); // Empêcher la soumission standard du formulaire
+
+            const form = $(e.target); // Récupérer le formulaire qui a été soumis
+            const url = form.attr('action');
+            const reservationId = form.find('input[name="reservation_id"]').val();
+            const status = form.find('input[name="status"]').val();
+
+            // Ajouter un indicateur de chargement
+            const submitButton = form.find('button[type="submit"]');
+            const originalContent = submitButton.html();
+            submitButton.prop('disabled', true);
+            submitButton.html('<i class="fas fa-spinner fa-spin"></i>');
+
+            // Faire la requête AJAX
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: form.serialize(),
+                headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: (response) => {
+                // Afficher le message de succès
+                this.showAlert('success', response.message || 'Statut de réservation mis à jour avec succès');
+
+                // Recharger la page des réservations sans changer de vue
+                this.loadReservationsWithUrl($('#load-reservations').data('reservations-url'));
+                },
+                error: (xhr) => {
+                // Restaurer le bouton en cas d'erreur
+                submitButton.prop('disabled', false);
+                submitButton.html(originalContent);
+                this.handleError(xhr);
+                }
+            });
+     }
     // Méthode modifiée pour éviter le rechargement complet
     toggleUserStatus(e) {
       const switchElement = $(e.currentTarget);

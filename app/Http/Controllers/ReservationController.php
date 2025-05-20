@@ -362,15 +362,13 @@ public function listStudentsWithReservations(Request $request)
                     $userQuery->where('users.phone', 'LIKE', "%{$searchTerm}%");
                 }
 
-                // Recherche normale pour nom et prénom
-                $userQuery->orWhere('users.name', 'LIKE', "%{$searchTerm}%")
-                        ->orWhere('users.lastname', 'LIKE', "%{$searchTerm}%");
+
             });
         });
     }
 
     // Paginer les résultats - 10 réservations par page
-    $reservations = $query->paginate(2)->appends(request()->query());
+    $reservations = $query->paginate(10)->appends(request()->query());
 
     $studentsWithReservations = [];
 
@@ -813,6 +811,28 @@ public function checkNewCartItems()
     return response()->json([
         'hasConfirmedReservation' => false,
         'shouldCreateNewReservation' => false
+    ]);
+}
+public function destroy($id)
+{
+    // Vérifier si l'utilisateur est connecté
+
+    // Trouver la réservation par ID
+    $reservation = Reservation::find($id);
+
+    if (!$reservation) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Réservation non trouvée'
+        ], 404);
+    }
+
+    // Supprimer la réservation
+    $reservation->delete();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Réservation supprimée avec succès'
     ]);
 }
 }

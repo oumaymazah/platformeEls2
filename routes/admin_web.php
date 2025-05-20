@@ -489,6 +489,8 @@ Route::middleware(['auth', 'role:admin|super-admin'])->name('admin.')->prefix('a
           ->name('quiz-attempts.show');
     Route::delete('/quiz-attempts/{attempt}', [AdminQuizController::class, 'destroy'])
           ->name('quiz-attempts.destroy');
+    Route::delete('/reservation/{id}', [ReservationController::class, 'destroy'])
+          ->name('reservations.destroy');
 });
 
 

@@ -9,6 +9,7 @@
 <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/sweetalert2.css') }}">
 <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/datatables.css') }}">
 
+
 <style>
     .badge-light { background-color: #f8f9fa; color: #212529; }
     .select2-container--default .select2-selection--multiple .select2-selection__choice {
@@ -41,13 +42,7 @@
 
 <div id="alert-container" class="position-fixed top-0 end-0 p-3" style="max-width: 600px;"></div>
 
-@component('components.breadcrumb')
-    @slot('breadcrumb_title')
-        <h3>Gestion des Utilisateurs & Permissions</h3>
-    @endslot
-    <li class="breadcrumb-item">Administration</li>
-    <li class="breadcrumb-item active">Utilisateurs & Permissions</li>
-@endcomponent
+
 
 <div class="container-fluid">
     <div class="email-wrap bookmark-wrap">
@@ -94,13 +89,7 @@
                                             </a>
                                         </li>
 
-                                            {{-- <li>
-                                                <a id="load-reservations" href="javascript:void(0)"
-                                                data-reservations-url="{{ route('admin.reservations') }}"
-                                                aria-label="Afficher la liste des reservations">
-                                                <i data-feather="calendar" aria-hidden="true"></i> RÉSERVATION
-                                                </a>
-                                            </li> --}}
+
                                             <li>
                                                 <a id="load-reservations" href="javascript:void(0)"
                                                 data-reservations-url="{{ route('admin.reservations') }}"

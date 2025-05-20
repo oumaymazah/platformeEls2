@@ -9,10 +9,42 @@
             </div>
          </div>
 
-        
 
-                    <!-- Nouvelle carte de filtrage avec espace -->
                     <div class="card-body pb-0">
+
+                            <div class="row mb-4">
+                                <div class="col-md-12">
+                                    <div class="d-flex flex-wrap gap-3">
+                                        <div class="stat-card bg-white shadow-sm border border-light rounded-3 flex-grow-1">
+                                            <div class="d-flex p-3">
+                                                <div class="stat-icon-container rounded-circle bg-primary-ultra-light p-3 me-3 d-flex align-items-center justify-content-center">
+                                                    <i class="fas fa-clipboard-list fa-lg text-primary"></i>
+                                                </div>
+                                                <div>
+                                                    <h3 class="fs-4 fw-bold mb-0"><?php echo e($reservations->total()); ?></h3>
+                                                    <p class="text-muted mb-0">Total des réservations</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <?php
+                                            $studentsWithReservationsCollection = collect($studentsWithReservations);
+                                        ?>
+                                        <div class="stat-card bg-white shadow-sm border border-light rounded-3 flex-grow-1">
+                                            <div class="d-flex p-3">
+                                                <div class="stat-icon-container rounded-circle bg-primary-ultra-light p-3 me-3 d-flex align-items-center justify-content-center">
+                                                    <i class="fas fa-check-circle fa-lg text-primary"></i>
+                                                </div>
+                                                <div>
+                                                    <h3 class="fs-4 fw-bold mb-0"><?php echo e($studentsWithReservationsCollection->where('status', 1)->count()); ?></h3>
+                                                    <p class="text-muted mb-0">Réservations confirmées</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                            </div>
                         <div class="card shadow-sm mb-3">
 
 
@@ -38,13 +70,15 @@
                                             </span>
                                             <input type="text" class="form-control" placeholder="Rechercher par ID réservation,ou téléphone..."
                                                 id="reservation-search-input" value="<?php echo e(request('search') ?? ''); ?>">
-                                            
+
                                         </div>
                                     </div>
 
+
                                     <div class="col-md-2">
-                                        <button class="btn btn-outline-secondary w-100" id="reset-reservation-filters">
-                                            <i class="fas fa-undo me-1"></i>
+
+                                        <button class="btn btn-sm btn-light border-0 shadow-sm rounded-pill px-3 py-2 d-inline-flex align-items-center justify-content-center" id="reset-reservation-filters" data-bs-toggle="tooltip" title="Effacer tous les filtres">
+                                            <i class="fas fa-undo-alt text-primary"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -74,11 +108,11 @@
                                         <td class="fw-bold"><?php echo e($student['reservation_id']); ?></td>
                                         <td><?php echo e($student['nom']); ?> <?php echo e($student['prenom']); ?></td>
                                         <td><?php echo e($student['telephone']); ?></td>
-                                        <td>
-                                            <span class="badge <?php echo e($student['status'] == 0 ? 'bg-danger' : 'bg-primary'); ?> px-2 py-1">
-                                                <i class="fas <?php echo e($student['status'] == 0 ? 'fa-clock' : 'fa-check-circle'); ?> me-1"></i>
-                                                <?php echo e($student['status_text']); ?>
 
+                                        <td>
+                                            <span class="badge <?php echo e($student['status'] == 0 ? 'bg-danger' : 'bg-primary'); ?> px-2 py-1 d-inline-flex align-items-center" style="font-size: 0.85rem;">
+                                                <i class="fas <?php echo e($student['status'] == 0 ? 'fa-clock' : 'fa-check-circle'); ?> me-1"></i>
+                                                <strong><?php echo e($student['status_text']); ?></strong>
                                             </span>
                                         </td>
                                         <td>
@@ -92,8 +126,9 @@
                                         </td>
                                         <td class="text-center">
                                             <div class="d-flex gap-1 justify-content-center">
+
                                                 <?php if($student['status'] == 0): ?>
-                                                    <form method="POST" action="<?php echo e(route('reservations.updateStatus')); ?>">
+                                                    <form class="reservation-status-form" method="POST" action="<?php echo e(route('reservations.updateStatus')); ?>">
                                                         <?php echo csrf_field(); ?>
                                                         <input type="hidden" name="reservation_id" value="<?php echo e($student['reservation_id']); ?>">
                                                         <input type="hidden" name="status" value="1">
@@ -102,11 +137,12 @@
                                                         </button>
                                                     </form>
                                                 <?php else: ?>
-                                                    <form method="POST" action="<?php echo e(route('reservations.updateStatus')); ?>">
+                                                    <form class="reservation-status-form" method="POST" action="<?php echo e(route('reservations.updateStatus')); ?>">
                                                         <?php echo csrf_field(); ?>
                                                         <input type="hidden" name="reservation_id" value="<?php echo e($student['reservation_id']); ?>">
                                                         <input type="hidden" name="status" value="0">
-                                                        <button type="submit" class="btn btn-sm py-1 px-2" style="background-color: #907b75; border-color: #907b75; color: white;" title="Annuler la validation">                                                <i class="fas fa-times"></i>
+                                                        <button type="submit" class="btn btn-sm py-1 px-2" style="background-color: #907b75; border-color: #907b75; color: white;" title="Annuler la validation">
+                                                            <i class="fas fa-times"></i>
                                                         </button>
                                                     </form>
                                                 <?php endif; ?>
@@ -125,13 +161,10 @@
                                                             </button>
                                                         </li>
                                                         <li>
-                                                            <form method="POST" action="<?php echo e(route('reservations.updateStatus')); ?>" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer définitivement cette réservation ? Cette action est irréversible.')" class="d-inline">
-                                                                <?php echo csrf_field(); ?>
-                                                                <input type="hidden" name="reservation_id" value="<?php echo e($student['reservation_id']); ?>">
-                                                                <button type="submit" class="dropdown-item text-danger">
-                                                                    <i class="fas fa-trash-alt me-2"></i> Supprimer
-                                                                </button>
-                                                            </form>
+                                                            <a class="dropdown-item delete-reservation" href="#" data-url="<?php echo e(route('admin.reservations.destroy',$student['reservation_id'])); ?>">
+                                                                <i class="fas fa-trash me-2"></i> Supprimer
+                                                            </a>
+
                                                         </li>
                                                     </ul>
                                                 </div>
@@ -139,7 +172,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    
+
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                     <tr>
                                         <td colspan="7" class="empty-state">
@@ -206,41 +239,61 @@
             </div>
         </div>
 <!-- Modals for formations -->
+
 <?php $__currentLoopData = $studentsWithReservations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $student): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 <div class="modal fade" id="formationsModal<?php echo e($student['reservation_id']); ?>" tabindex="-1" aria-labelledby="formationsModalLabel<?php echo e($student['reservation_id']); ?>" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="formationsModalLabel<?php echo e($student['reservation_id']); ?>">
-                    <i class="fas fa-graduation-cap me-2"></i>
-                    Formations réservées (ID: <?php echo e($student['reservation_id']); ?>)
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title d-flex align-items-center" id="formationsModalLabel<?php echo e($student['reservation_id']); ?>">
+                    <span class="modal-icon-container bg-white rounded-circle p-2 me-2 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-graduation-cap text-primary"></i>
+                    </span>
+                    Formations réservées <span class="badge bg-white text-primary ms-2"><strong>ID: <?php echo e($student['reservation_id']); ?></strong></span>
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-4">
                 <?php if(count($student['formations']) > 0): ?>
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between mb-2">
-                            <h6 class="fw-bold">Nombre total de formations :
-                                <span class="badge bg-primary rounded-pill fs-7"><?php echo e(count($student['formations'])); ?></span>
-                            </h6>
-                            <h6 class="fw-bold">Date de réservation :
-                                <span class="badge bg-secondary rounded-pill fs-7">
-                                    <?php echo e(\Carbon\Carbon::parse($student['reservation_date'])->format('d/m/Y')); ?>
-
-                                </span>
-                            </h6>
+                    <div class="mb-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="card bg-light border-0 shadow-sm h-100">
+                                    <div class="card-body p-3 d-flex align-items-center">
+                                        <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-3 d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-list-alt text-white"></i>
+                                        </div>
+                                        <div>
+                                            <p class="card-text mb-0 text-dark small">Nombre total de formations</p>
+                                            <h6 class="card-title mb-0 text-muted"><?php echo e(count($student['formations'])); ?></h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light border-0 shadow-sm h-100">
+                                    <div class="card-body p-3 d-flex align-items-center">
+                                        <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-3 d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-calendar-alt text-white"></i>
+                                        </div>
+                                        <div>
+                                            <p class="card-text mb-0 text-dark small">Date de réservation</p>
+                                            <h6 class="card-title mb-0  text-muted"><?php echo e(\Carbon\Carbon::parse($student['reservation_date'])->format('d/m/Y')); ?></h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
+                    <div class="table-responsive rounded shadow-sm">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
                                 <tr>
-                                    <th>Formation</th>
-                                    <th class="text-end">Prix</th>
-                                    <th class="text-end">Remise</th>
-                                    <th class="text-end">Prix final</th>
+                                    <th class="px-3 py-3 border-0">Formation</th>
+                                    <th class="px-3 py-3 border-0 text-end">Prix</th>
+                                    <th class="px-3 py-3 border-0 text-end">Remise</th>
+                                    <th class="px-3 py-3 border-0 text-end">Prix final</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -270,58 +323,70 @@
                                     ?>
 
                                     <tr>
-                                        <td style="color: black;">
-                                            <i class="fas fa-certificate text-primary me-2"></i>
-                                            <?php echo e($formation['title']); ?>
-
+                                        <td class="px-3 py-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                    <i class="fas fa-certificate text-white"></i>
+                                                </div>
+                                                <span><?php echo e($formation['title']); ?></span>
+                                            </div>
                                         </td>
-                                        <td class="text-end" style="color: black;"><?php echo e(number_format($originalPrice, 2)); ?> Dt</td>
-                                        <td class="text-end">
+                                        <td class="px-3 py-3 text-end"><?php echo e(number_format($originalPrice, 2)); ?> Dt</td>
+                                        <td class="px-3 py-3 text-end">
                                             <?php if($discount > 0): ?>
-                                                <span class="text-danger">
-                                                    <small><?php echo e($discount); ?>%</small>
+                                                <span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1">
+                                                    <?php echo e($discount); ?>%
                                                 </span>
                                             <?php else: ?>
                                                 <span class="text-muted">-</span>
                                             <?php endif; ?>
                                         </td>
-                                        <td class="text-end fw-bold" style="color: black;"><?php echo e(number_format($finalPrice, 2)); ?> Dt</td>
+                                        <td class="px-3 py-3 text-end fw-bold"><?php echo e(number_format($finalPrice, 2)); ?> Dt</td>
                                     </tr>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </tbody>
-                            <tfoot class="table-primary">
-                                <tr>
-                                    <th style="color: black;">Total</th>
+                            <tfoot>
+                                <tr class="bg-primary ">
+                                    <th class="px-3 py-3 border-0 text-white">Total</th>
                                     <?php if($hasAnyDiscount): ?>
-                                        <th class="text-end" style="color: black;"><?php echo e(number_format($totalOriginal, 2)); ?> Dt</th>
-                                        <th class="text-end text-danger">
+                                        <th class="px-3 py-3 border-0 text-white"><?php echo e(number_format($totalOriginal, 2)); ?> Dt</th>
+                                        <th class="px-3 py-3 border-0 text-white">
                                             <?php if($totalOriginal > 0): ?>
-                                                <small><?php echo e(number_format(($totalDiscount / $totalOriginal) * 100, 2)); ?>%</small>
+                                                <span class="badge bg-danger bg-opacity-10 text-white px-2 py-1">
+                                                    <?php echo e(number_format(($totalDiscount / $totalOriginal) * 100, 2)); ?>%
+                                                </span>
                                             <?php endif; ?>
                                         </th>
-                                        <th class="text-end" style="color: black;"><?php echo e(number_format($totalFinal, 2)); ?> Dt</th>
+                                        <th class="px-3 py-3 border-0 text-white"><?php echo e(number_format($totalFinal, 2)); ?> Dt</th>
                                     <?php else: ?>
-                                        <th></th>
-                                        <th></th>
-                                        <th class="text-end" style="color: black;"><?php echo e(number_format($totalFinal, 2)); ?> Dt</th>
+                                        <th class="px-3 py-3 border-0"></th>
+                                        <th class="px-3 py-3 border-0"></th>
+                                        <th class="px-3 py-3 border-0 text-white"><?php echo e(number_format($totalFinal, 2)); ?> Dt</th>
                                     <?php endif; ?>
                                 </tr>
                             </tfoot>
                         </table>
                     </div>
                 <?php else: ?>
-                    <div class="text-center py-4">
-                        <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
-                        <p class="lead text-muted">Aucune formation dans cette réservation</p>
+                    <div class="text-center py-5">
+                        <div class="empty-state-icon bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-info-circle fa-2x text-muted"></i>
+                        </div>
+                        <h5 class="text-muted mb-1">Aucune formation</h5>
+                        <p class="text-muted small mb-0">Cette réservation ne contient aucune formation.</p>
                     </div>
                 <?php endif; ?>
             </div>
 
-            <div class="modal-footer">
-                <div class="text-end mt-2">
-                    <span class="badge px-3 py-2 fs-6" style="background-color: #CFE2FF; color: #161616;">
-                        Prix Total: <?php echo e(number_format($totalFinal ?? 0, 2)); ?> Dt
-                    </span>
+            <div class="modal-footer border-0 bg-light p-3">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> Fermer
+                </button>
+                <div class="ms-auto">
+                    <div class="price-badge bg-primary text-white px-3 py-2 rounded-pill shadow-sm">
+                        <i class="fas fa-tags me-1"></i>
+                        Prix Total: <span class="fw-bold"><?php echo e(number_format($totalFinal ?? 0, 2)); ?> Dt</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -331,9 +396,32 @@
 
 
 <style>
-     /* Empty State */
 
 
+    :root {
+        --primary: #4361ee;
+        --primary-dark: #3a56d4;
+        --primary-light: #6184ff;
+        --primary-ultra-light: #eef1ff;
+        --secondary: #3f37c9;
+        --success: #4c89e8;
+        --success-ultra-light: #e6f3ff;
+        --danger: #f87171;
+        --danger-ultra-light: #fee2e2;
+        --warning: #fbbf24;
+        --dark: #1f2937;
+        --light: #f9fafb;
+        --border: #e5e7eb;
+        --text-primary: #333;
+        --text-secondary: #6b7280;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+        --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --radius-sm: 0.25rem;
+        --radius: 0.5rem;
+        --radius-lg: 0.75rem;
+        --transition: all 0.3s ease;
+    }
 
     .dropdown-toggle::after {
         display: none;
@@ -472,6 +560,76 @@
         opacity: 0.5;
         pointer-events: none;
     }
+     .stat-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow);
+    }
+
+    .stat-icon-container {
+        width: 50px;
+        height: 50px;
+    }
+
+
+    .modal-icon-container {
+        width: 32px;
+        height: 32px;
+    }
+
+    /* Animation pour la modale */
+    .modal.fade .modal-dialog {
+        transition: transform 0.3s ease-out;
+    }
+
+    .modal.show .modal-dialog {
+        transform: none;
+    }
+
+    /* Styles pour le tableau dans la modale */
+    .table-hover tbody tr:hover {
+        background-color: var(--primary-ultra-light);
+    }
+
+    /* Style pour le badge de prix total */
+    .price-badge {
+        display: inline-block;
+        font-size: 0.95rem;
+    }
+
+    /* Style pour les états vides */
+    .empty-state-icon {
+        transition: transform 0.3s ease;
+    }
+
+    .empty-state-icon:hover {
+        transform: scale(1.05);
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .stat-card {
+            margin-bottom: 1rem;
+        }
+
+        .modal-footer {
+            flex-direction: column-reverse;
+            gap: 1rem;
+        }
+
+        .modal-footer .ms-auto {
+            margin-left: 0 !important;
+            width: 100%;
+        }
+
+        .price-badge {
+            width: 100%;
+            text-align: center;
+        }
+    }
 
 </style>
 <style>
@@ -529,12 +687,7 @@
         white-space: nowrap;
     }
 
-    /* Couleur de fond pour les lignes confirmées */
-    .bg-light-blue,
-.bg-light-blue td {
-    background-color: #CFE2FF !important;
-    border-color: #CFE2FF !important; /* Pour les bordures */
-}
+
 
     /* Styles pour les petits écrans */
     @media (max-width: 992px) {

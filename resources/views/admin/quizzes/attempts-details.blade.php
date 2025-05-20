@@ -170,7 +170,7 @@
                                             </a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item delete-role" href="#"
+                                            <a class="dropdown-item delete-evaluation" href="#"
                                                data-url="{{ route('admin.quiz-attempts.destroy', $attempt) }}">
                                                 <i class="fas fa-trash me-2"></i> Supprimer
                                             </a>

@@ -1,13 +1,12 @@
 
-
-
     <div class="card ">
 
 
+        
         <div class="card-header border-0 d-flex align-items-center py-4 px-4" style="background-color: #2B6ED4; color: #FFFFFF;">
-            <button class="btn btn-light me-3 back-btn"  data-back-tab="evaluation">
+            <a href="#" class="text-white me-3 back-btn fs-4" data-back-tab="evaluation">
                 <i class="fas fa-arrow-left"></i>
-            </button>
+            </a>
             <h4 class="mb-0 fw-semibold mx-auto">
                 <i class="fas fa-clipboard-check me-2"></i> Détails de la tentative
             </h4>
@@ -203,14 +202,11 @@
 
     <style>
         .back-btn {
-            background-color: #ffffff; /* Couleur par défaut */
+
             color: #000000; /* Couleur par défaut */
         }
 
-        .back-btn:hover {
-            background-color: #f8f9fa; /* Couleur de fond au survol */
-            color: #3a3f63; /* Couleur de texte au survol */
-        }
+      
         </style>
 
 <?php /**PATH C:\Users\msi\Desktop\Centre_Formation-main\resources\views/admin/quizzes/attempt-single.blade.php ENDPATH**/ ?>
