@@ -1,0 +1,314 @@
+
+
+/* CORRECTIONS POUR LE PROBLÈME DE DROPDOWN */
+.container-fluid {
+    overflow: visible !important;
+}
+
+.card {
+    overflow: visible !important;
+}
+
+.card-body {
+    overflow: visible !important;
+}
+
+.table-responsive {
+    overflow: visible !important;
+}
+
+.dropdown {
+    position: static !important;
+}
+
+td.text-end {
+    position: static !important;
+}
+
+.dropdown-menu.dropdown-menu-end {
+    position: fixed !important;
+    z-index: 1060 !important;
+    min-width: 10rem !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15) !important;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+    border-radius: 0.375rem !important;
+}
+
+/* Sweet Alert styles */
+.swal-custom-popup {
+    border-radius: 5px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+.swal-confirm-button-no-border,
+.swal-cancel-button-no-border {
+    box-shadow: none !important;
+    outline: none !important;
+    border: none !important;
+    border-radius: 5px !important;
+    padding: 10px 24px !important;
+}
+
+/* Correction des badges de statut */
+.badge.bg-success,
+span:has(i.fas.fa-eye) {
+    background-color: #3498db !important;
+    color: white !important;
+}
+
+.badge.bg-warning,
+span:has(i.fas.fa-eye-slash) {
+    background-color: #e9ecef !important;
+    color: #495057 !important;
+}
+
+/* Bouton du dropdown */
+.dropdown-toggle {
+    background-color: #f0f5ff !important;
+    border: none !important;
+    border-radius: 0.375rem !important;
+    padding: 0.25rem 0.5rem !important;
+    color: #495057 !important;
+}
+
+.dropdown-toggle::after {
+    display: none !important;
+}
+
+/* Style des items du dropdown */
+.dropdown-menu .dropdown-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.875rem !important;
+    color: #212529 !important;
+    transition: background-color 0.2s !important;
+}
+
+/* Format des icons */
+.dropdown-item i {
+    font-size: 0.875rem !important;
+    width: 1rem !important;
+    text-align: center !important;
+}
+
+/* Hover effect */
+.dropdown-menu .dropdown-item:hover {
+    background-color: #e9ecef !important;
+}
+
+/* Global styles */
+.card {
+    border-radius: 0.375rem;
+    overflow: visible;
+    border: none;
+    box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.05) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary) !important;
+}
+
+.text-primary {
+    color: var(--primary) !important;
+}
+
+/* Stats cards styling - compact */
+.stat-card {
+    border-radius: 0.375rem;
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.border-left-primary {
+    border-left: 3px solid var(--primary) !important;
+}
+
+.border-left-success {
+    border-left: 3px solid var(--success) !important;
+}
+
+.border-left-warning {
+    border-left: 3px solid var(--warning) !important;
+}
+
+.text-gray-300 {
+    color: #d1d3e2 !important;
+}
+
+.text-gray-800 {
+    color: #3a3b45 !important;
+}
+
+.font-weight-bold {
+    font-weight: 600 !important;
+}
+
+.text-uppercase {
+    text-transform: uppercase !important;
+}
+
+.text-xs {
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
+}
+
+/* Table styles */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    font-weight: 600;
+    color: #495057;
+    border-top: none;
+    font-size: 0.85rem;
+    letter-spacing: 0.3px;
+    padding: 0.65rem;
+}
+
+.table td {
+    padding: 0.65rem;
+    vertical-align: middle;
+    font-size: 0.875rem;
+}
+
+.bg-light-hover {
+    background-color: var(--light-hover);
+}
+
+/* Badge styling */
+.badge {
+    font-weight: 500;
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+    border-radius: 50rem;
+}
+
+.badge i {
+    font-size: 0.7rem;
+}
+
+/* Button styling */
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-primary:hover {
+    background-color: #3a53cc;
+    border-color: #3a53cc;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+/* Form controls */
+.form-select {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 0.25rem;
+    border: 1px solid var(--border-color);
+    min-width: 140px;
+}
+
+.form-select:focus {
+    border-color: rgba(67, 97, 238, 0.5);
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+}
+
+.btn-icon {
+    padding: 0;
+    width: 2rem;
+    height: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Alert styling */
+.alert {
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    border: none;
+}
+
+.alert-success {
+    background-color: rgba(46, 201, 70, 0.1);
+    border-left: 3px solid var(--success);
+}
+
+.alert-danger {
+    background-color: rgba(239, 71, 111, 0.1);
+    border-left: 3px solid var(--danger);
+}
+
+/* Pagination Styles */
+.pagination {
+    gap: 0.25rem;
+}
+
+.page-item .page-link {
+    border-radius: 0.25rem;
+    min-width: 32px;
+    text-align: center;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--primary);
+    border: 1px solid #e9ecef;
+    transition: all 0.2s;
+}
+
+.page-item.active .page-link {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.page-item.disabled .page-link {
+    color: #adb5bd;
+    background-color: #f8f9fa;
+}
+
+.page-link:hover:not(.active) {
+    background-color: #f1f3f5;
+}
+
+.card-footer {
+    padding: 0.75rem 1.25rem;
+    background-color: #fff;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+/* Card header/footer */
+.card-header {
+    background-color: #fff;
+    padding: 0.75rem 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .stat-card .card-body {
+        padding: 0.75rem;
+    }
+
+    .stat-card .h5 {
+        font-size: 1rem;
+    }
+
+    .card-header h6 {
+        font-size: 0.9rem;
+    }
+
+    .table th, .table td {
+        font-size: 0.85rem;
+        padding: 0.5rem;
+    }
+}
