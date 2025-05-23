@@ -13,7 +13,7 @@ class FeedbackController extends Controller
 {
 
 
-    
+
 
 
     public function checkFeedback(Request $request)
@@ -82,5 +82,44 @@ class FeedbackController extends Controller
         // Redirection normale avec message de succès si ce n'est pas une requête AJAX
         return back()->with('success', 'Merci pour votre feedback ! Votre évaluation a bien été enregistrée.');
     }
+
+
+
+
+
+
+
+       // Afficher tous les feedbacks avec leur formation associée
+    public function index()
+    {
+        // Récupère tous les feedbacks en chargeant la relation "formation"
+        $feedbacks = Feedback::with('training')->get();
+        // Renvoie vers la vue "feedbacks.blade.php"
+        return view('admin.apps.feedback.feedbacks', compact('feedbacks'));
+    }
+
+
+
+
+
+
+
+    // Supprimer un feedback
+    public function destroy($id)
+    {
+        Feedback::findOrFail($id)->delete();
+        return redirect()->route('feedbacks')->with('success', 'Feedback supprimé.');
+    }
+
+    public function deleteSelected(Request $request)
+{
+    $feedbackIds = $request->input('feedbacks', []);
+
+    if (!empty($feedbackIds)) {
+        Feedback::whereIn('id', $feedbackIds)->delete();
+    }
+
+    return redirect()->route('feedbacks')->with('success', 'Les feedbacks sélectionnés ont été supprimés avec succès.');
+}
 
 }

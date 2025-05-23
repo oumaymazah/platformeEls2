@@ -16,8 +16,7 @@ class AdminManager {
         .on('click', '#load-roles', () => this.loadRoles())
         .on('click', '#load-evaluation', () => this.loadEvaluations())
         .on('click', '#loadCreateUserForm', () => this.loadCreateUserForm())
-        .on('click', '#loadCreateRoleForm', () => this.loadCreateRoleForm())
-        .on('click', '#loadCreatePermissionForm', () => this.loadCreatePermissionForm())
+
         //zedtou tw
         .on('click', '#load-reservations', () => this.loadReservations()) // Nouveau bouton pour les réservations
 
@@ -26,20 +25,19 @@ class AdminManager {
       // Forms
       $(document)
         .on('submit', '#create-user-form', (e) => this.handleUserForm(e))
-        .on('submit', '#edit-role-form', (e) => this.handleRoleForm(e))
-        .on('submit', '#create-role-form', (e) => this.handleRoleForm(e))
+
 
 
       // Actions
       $(document)
         .on('click', '.delete-user', (e) => this.deleteItem(e, 'users'))
-        .on('click', '.delete-role', (e) => this.deleteItem(e, 'roles'))
+
 
         .on('change', '.toggle-status-switch', (e) => this.toggleUserStatus(e))
         .on('click', '.toggle-status-menu', (e) => this.toggleUserStatusMenu(e))
         .on('click', '.view-user-roles', (e) => this.viewUserRoles(e))
         .on('click', '.view-quiz-detail', (e) => this.viewQuizDetail(e))
-        .on('click', '.remove-role', (e) => this.removeRoleFromUser(e))  // Handler pour supprimer un rôle
+
        // Handler pour révoquer une permission
         .on('change', '#role-filter, #status-filter', () => this.applyFilters())
 
@@ -47,8 +45,7 @@ class AdminManager {
         .on('change', '.toggle-reservation-status', (e) => this.toggleReservationStatus(e)) // Nouveau pour le statut de réservation
         .on('change', '#reservation-status-filter', () => this.applyReservationFilters())  // Nouveau pour filtrer les réservations
 
-        .on('click', '.edit-role', (e) => this.loadEditRoleForm(e))
-        .on('click', '.edit-permission', (e) => this.loadEditPermissionForm(e))
+
         .on('click', '#reset-filters', () => this.resetFilters())
         .on('change', '#role-filter-permission', () => this.applyFiltersPermission()) // Ajout du bouton de réinitialisation
         .on('click', '#reset-filters-permissions', () => this.resetFiltersPermission())
@@ -100,9 +97,7 @@ class AdminManager {
 
           if (modalTitle.includes('utilisateur') || modalTitle.includes('user')) {
             setTimeout(() => this.loadUsers(), 100);
-          } else if (modalTitle.includes('rôle') || modalTitle.includes('role')) {
-            setTimeout(() => this.loadRoles(), 100);
-          }else if (modalTitle.includes('reservations') || modalTitle.includes('reservations')) {
+          } else if (modalTitle.includes('reservations') || modalTitle.includes('reservations')) {
             setTimeout(() => this.loadReservations(), 100);
           }else if (modalTitle.includes('evaluation')) {
             setTimeout(() => this.loadEvaluations(), 100);
@@ -425,85 +420,11 @@ class AdminManager {
       });
     }
 
-    // loadReservations() {
-    //   console.log("Loading reservations view");
-
-    //   $.ajax({
-    //     url: $('#load-reservations').data('reservations-url'),
-    //     type: 'GET',
-    //     success: (response) => {
-    //       $('#blog-container').html(response);
-    //       this.initDataTable('#reservations-table');
-    //       this.initSelect2();
-    //       // Initialiser la validation du formulaire après le chargement
-    //       if (window.initFormValidation) {
-    //         console.log("Initializing form validation after loading reservations");
-    //         window.initFormValidation();
-    //       }
-    //     },
-    //     error: (xhr) => this.handleError(xhr)
-    //   });
-    // }
-
-    loadCreateRoleForm() {
-        console.log("loadCreateRoleForm called");
-
-        // S'assurer que le modal est affiché
-        // $('#exampleModal').modal('show');
-        $('#exampleModal .modal-body').empty();
-        if (!$('#exampleModal').hasClass('show')) {
-            $('#exampleModal').modal('show');
-        }
-        // Récupérer l'URL du bouton
-        const url = $('#loadCreateRoleForm').data('create-url');
-        console.log("URL for create role form:", url);
-
-        // Faire la requête AJAX
-        $.ajax({
-          url: url,
-          type: 'GET',
-          success: (response) => {
-            console.log("Response received for create role form");
-            $('#exampleModal .modal-body').html(response);
-            $('#exampleModalLabel').text('Créer un rôle');
-            // AJOUT: attribut data pour savoir où rediriger après fermeture
-            $('#exampleModal').data('return-view', 'roles');
-
-            // Initialiser la validation après avoir chargé le formulaire
-            if (window.initFormValidation) {
-              console.log("Initializing validation for role form");
-              setTimeout(() => window.initFormValidation(), 100);
-            }
-          },
-          error: (xhr) => this.handleError(xhr)
-          }
-        );
-    }
 
 
 
-    loadEditRoleForm(e) {
-        $('#exampleModal .modal-body').empty();
-        if (!$('#exampleModal').hasClass('show')) {
-            $('#exampleModal').modal('show');
-          }
-        const url = $(e.currentTarget).data('edit-url');
-        $.ajax({
-          url:url,
-          type: 'GET',
-          success: (response) => {
-            $('#exampleModal .modal-body').html(response);
-            $('#exampleModal').data('return-view', 'roles');
-            this.initSelect2();
-            // Initialiser la validation du formulaire après le chargement
-            if (window.initFormValidation) {
-              console.log("Initializing form validation for edit role form");
-              window.initFormValidation();
-            }
-          },
-          error: (xhr) => this.handleError(xhr)
-        });
-      }
+
+
 
 
 
@@ -531,25 +452,7 @@ class AdminManager {
         });
     }
 
-    handleRoleForm(e) {
-      e.preventDefault();
-      const form = $(e.target);
 
-      // Initialiser la validation du formulaire avant traitement
-      if (window.initFormValidation) {
-        console.log("Initializing form validation during role form submission");
-        window.initFormValidation();
-      }
-
-      this.submitForm(form, () => {
-
-        // Seulement fermer en cas de succès
-        $('#exampleModal').modal('hide');
-        setTimeout(() => {
-          this.loadRoles();
-        }, 300);
-      });
-    }
 
 
 
@@ -803,41 +706,8 @@ class AdminManager {
         error: (xhr) => this.handleError(xhr)
       });
     }
-    applyFiltersPermission(){
-        const role = $('#role-filter-permission').val();
-
-    //   this.showLoader();
-      $.ajax({
-        url: $('#load-permission').data('permission-url'),
-        type: 'GET',
-        data: {
-          role: role,
-
-        },
-        success: (response) => {
-          $('#blog-container').html(response);
-          this.initDataTable('#permissions-table');
-          this.initSelect2();
-          // Initialiser la validation du formulaire après le chargement
-          if (window.initFormValidation) {
-            console.log("Initializing form validation after applying filters");
-            window.initFormValidation();
-          }
-
-          // Restaurer les valeurs des filtres après le rechargement
-          $('#role-filter-permission').val(role);
-
-        },
-        error: (xhr) => this.handleError(xhr)
-      });
 
 
-    }
-    // Méthode pour réinitialiser les filtres
-    resetFiltersPermission() {
-        $('#role-filter-permission').val('');
-        this.loadPermissions();
-      }
 
 
     // Méthode pour réinitialiser les filtres

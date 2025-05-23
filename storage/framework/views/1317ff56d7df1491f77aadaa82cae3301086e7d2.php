@@ -1,18 +1,18 @@
 
-             <div class="container-fluid px-0">
-                <div class="card rounded-0 border-0 shadow-sm">
-                    <div class="card-header bg-primary text-white py-3 rounded-0 mb-4">
-                        <div class="d-flex align-items-center">
-                            <div class="rounded-circle bg-white p-2 me-3">
-                                <i class="fas fa-calendar-check text-primary fa-lg"></i>
-                            </div>
-                            <h3 class="fw-bold mb-0">Gestion des Réservations</h3>
-                        </div>
-                    </div>
+<div class="container-fluid px-0">
+    <div class="card rounded-0 border-0 shadow-sm">
+        <div class="card-header bg-primary text-white py-3 rounded-0 mb-4">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle bg-white p-2 me-3">
+                         <i class="fas fa-calendar-check text-primary fa-lg"></i>
+                </div>
+                <h3 class="fw-bold mb-0">Gestion des Réservations</h3>
+            </div>
+         </div>
 
-                   <div class="card-body pb-0 pt-3">
-    <h5 class="mb-0">Liste des Réservations des Étudiants</h5>
-</div>
+        <div class="card-body pb-0 pt-3">
+            <h5 class="mb-0">Liste des Réservations des Étudiants</h5>
+        </div>
 
                     <!-- Nouvelle carte de filtrage avec espace -->
                     <div class="card-body pb-0">
@@ -39,11 +39,9 @@
                                             <span class="input-group-text bg-primary text-white">
                                                 <i class="fas fa-search"></i>
                                             </span>
-                                            <input type="text" class="form-control" placeholder="Rechercher par ID réservation, ID user ou téléphone..."
+                                            <input type="text" class="form-control" placeholder="Rechercher par ID réservation,ou téléphone..."
                                                 id="reservation-search-input" value="<?php echo e(request('search') ?? ''); ?>">
-                                            <button class="btn btn-primary" type="button" id="apply-reservation-filters">
-                                                <i class="fas fa-filter"></i>
-                                            </button>
+                                            
                                         </div>
                                     </div>
 
@@ -76,157 +74,158 @@
                             </div>
                         <?php endif; ?>
 
-            <div class="table-responsive m-0">
-                <table id="reservations-table" class="table table-borderless compact-table m-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="border-top-0">ID</th>
-                            <th class="border-top-0">Nom Complet</th>
-                            <th class="border-top-0">Téléphone</th>
-                            <th class="border-top-0">Email</th>
-                            <th class="border-top-0">Statut</th>
-                            <th class="border-top-0">Date de paiement</th>
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php $__empty_1 = true; $__currentLoopData = $studentsWithReservations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $student): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                        <tr data-reservation-id="<?php echo e($student['reservation_id']); ?>" class="<?php echo e($student['status'] == 0 ? '' : 'bg-light-blue'); ?>">
-                            <td class="fw-bold"><?php echo e($student['reservation_id']); ?></td>
-                            <td><?php echo e($student['nom']); ?> <?php echo e($student['prenom']); ?></td>
-                            <td><?php echo e($student['telephone']); ?></td>
-                            <td class="email-cell"><?php echo e($student['email']); ?></td>
-                            <td>
-                                <span class="badge <?php echo e($student['status'] == 0 ? 'bg-danger' : 'bg-primary'); ?> px-2 py-1">
-                                    <i class="fas <?php echo e($student['status'] == 0 ? 'fa-clock' : 'fa-check-circle'); ?> me-1"></i>
-                                    <?php echo e($student['status_text']); ?>
 
-                                </span>
-                            </td>
-                            <td>
-                                <?php if($student['payment_date']): ?>
-                                    <?php echo e(\Carbon\Carbon::parse($student['payment_date'])->format('d/m/Y H:i')); ?>
+                        <div class="table-responsive m-0">
+                            <table id="reservations-table" class="table table-borderless compact-table m-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="border-top-0">ID</th>
+                                        <th class="border-top-0">Nom Complet</th>
+                                        <th class="border-top-0">Téléphone</th>
+                                        <th class="border-top-0">Email</th>
+                                        <th class="border-top-0">Statut</th>
+                                        <th class="border-top-0">Date de paiement</th>
+                                        
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php $__empty_1 = true; $__currentLoopData = $studentsWithReservations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $student): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                    <tr data-reservation-id="<?php echo e($student['reservation_id']); ?>" class="<?php echo e($student['status'] == 0 ? '' : 'bg-light-blue'); ?>">
+                                        <td class="fw-bold"><?php echo e($student['reservation_id']); ?></td>
+                                        <td><?php echo e($student['nom']); ?> <?php echo e($student['prenom']); ?></td>
+                                        <td><?php echo e($student['telephone']); ?></td>
+                                        <td class="email-cell"><?php echo e($student['email']); ?></td>
+                                        <td>
+                                            <span class="badge <?php echo e($student['status'] == 0 ? 'bg-danger' : 'bg-primary'); ?> px-2 py-1">
+                                                <i class="fas <?php echo e($student['status'] == 0 ? 'fa-clock' : 'fa-check-circle'); ?> me-1"></i>
+                                                <?php echo e($student['status_text']); ?>
 
-                                <?php else: ?>
-                                <span class="text-muted" style="margin-left: 70px"> - </span>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <?php if($student['payment_date']): ?>
+                                                <?php echo e(\Carbon\Carbon::parse($student['payment_date'])->format('d/m/Y H:i')); ?>
 
-                                <?php endif; ?>
-                            </td>
-                            <td class="text-center">
-                                <div class="d-flex gap-1 justify-content-center">
-                                    <?php if($student['status'] == 0): ?>
-                                        <form method="POST" action="<?php echo e(route('reservations.updateStatus')); ?>">
-                                            <?php echo csrf_field(); ?>
-                                            <input type="hidden" name="reservation_id" value="<?php echo e($student['reservation_id']); ?>">
-                                            <input type="hidden" name="status" value="1">
-                                            <button type="submit" class="btn btn-success btn-sm py-1 px-2" title="Valider cette réservation">
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                        </form>
-                                    <?php else: ?>
-                                        <form method="POST" action="<?php echo e(route('reservations.updateStatus')); ?>">
-                                            <?php echo csrf_field(); ?>
-                                            <input type="hidden" name="reservation_id" value="<?php echo e($student['reservation_id']); ?>">
-                                            <input type="hidden" name="status" value="0">
-                                            <button type="submit" class="btn btn-sm py-1 px-2" style="background-color: #907b75; border-color: #907b75; color: white;" title="Annuler la validation">                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </form>
-                                    <?php endif; ?>
+                                            <?php else: ?>
+                                            <span class="text-muted" style="margin-left: 70px"> - </span>
+
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="d-flex gap-1 justify-content-center">
+                                                <?php if($student['status'] == 0): ?>
+                                                    <form method="POST" action="<?php echo e(route('reservations.updateStatus')); ?>">
+                                                        <?php echo csrf_field(); ?>
+                                                        <input type="hidden" name="reservation_id" value="<?php echo e($student['reservation_id']); ?>">
+                                                        <input type="hidden" name="status" value="1">
+                                                        <button type="submit" class="btn btn-success btn-sm py-1 px-2" title="Valider cette réservation">
+                                                            <i class="fas fa-check"></i>
+                                                        </button>
+                                                    </form>
+                                                <?php else: ?>
+                                                    <form method="POST" action="<?php echo e(route('reservations.updateStatus')); ?>">
+                                                        <?php echo csrf_field(); ?>
+                                                        <input type="hidden" name="reservation_id" value="<?php echo e($student['reservation_id']); ?>">
+                                                        <input type="hidden" name="status" value="0">
+                                                        <button type="submit" class="btn btn-sm py-1 px-2" style="background-color: #907b75; border-color: #907b75; color: white;" title="Annuler la validation">                                                <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </form>
+                                                <?php endif; ?>
 
 
-                                    <div class="dropdown dropdown-user-actions">
-                                        <button class="btn btn-sm btn-light dropdown-toggle py-1 px-2" type="button"
-                                                id="dropdownMenuButton-<?php echo e($student['reservation_id']); ?>" data-bs-toggle="dropdown"
-                                                aria-expanded="false">
-                                                <i class="fas fa-ellipsis-h" aria-hidden="true"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton-<?php echo e($student['reservation_id']); ?>">
-                                            <li>
-                                                <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#formationsModal<?php echo e($student['reservation_id']); ?>">
-                                                    <i class="fas fa-book-open me-2"></i> Voir formations (<?php echo e(count($student['formations'])); ?>)
-                                                </button>
-                                            </li>
-                                            <li>
-                                                <form method="POST" action="<?php echo e(route('reservations.updateStatus')); ?>" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer définitivement cette réservation ? Cette action est irréversible.')" class="d-inline">
-                                                    <?php echo csrf_field(); ?>
-                                                    <input type="hidden" name="reservation_id" value="<?php echo e($student['reservation_id']); ?>">
-                                                    <button type="submit" class="dropdown-item text-danger">
-                                                        <i class="fas fa-trash-alt me-2"></i> Supprimer
+                                                <div class="dropdown dropdown-user-actions">
+                                                    <button class="btn btn-sm btn-light dropdown-toggle py-1 px-2" type="button"
+                                                            id="dropdownMenuButton-<?php echo e($student['reservation_id']); ?>" data-bs-toggle="dropdown"
+                                                            aria-expanded="false">
+                                                            <i class="fas fa-ellipsis-h" aria-hidden="true"></i>
                                                     </button>
-                                                </form>
+                                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton-<?php echo e($student['reservation_id']); ?>">
+                                                        <li>
+                                                            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#formationsModal<?php echo e($student['reservation_id']); ?>">
+                                                                <i class="fas fa-book-open me-2"></i> Voir formations (<?php echo e(count($student['formations'])); ?>)
+                                                            </button>
+                                                        </li>
+                                                        <li>
+                                                            <form method="POST" action="<?php echo e(route('reservations.updateStatus')); ?>" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer définitivement cette réservation ? Cette action est irréversible.')" class="d-inline">
+                                                                <?php echo csrf_field(); ?>
+                                                                <input type="hidden" name="reservation_id" value="<?php echo e($student['reservation_id']); ?>">
+                                                                <button type="submit" class="dropdown-item text-danger">
+                                                                    <i class="fas fa-trash-alt me-2"></i> Supprimer
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                                    <tr>
+                                        <td colspan="7" class="empty-state">
+                                            <div class="empty-content">
+                                                <i class="fas fa-search-minus"></i>
+                                                <h3>Aucune Reservation trouvée</h3>
+                                                <p>Modifiez vos critères de recherche ou essayez plus tard</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <?php if($reservations->hasPages()): ?>
+                            <div class="pagination-wrapper mt-4">
+                                <div class="pagination-info text-muted small mb-2">
+                                    <i class="fas fa-file-alt me-1"></i> Affichage de
+                                    <span class="fw-bold"><?php echo e($reservations->firstItem()); ?></span>
+                                    à <span class="fw-bold"><?php echo e($reservations->lastItem()); ?></span>
+                                    sur <span class="fw-bold"><?php echo e($reservations->total()); ?></span> réservations
+                                </div>
+
+                                <div class="pagination-controls">
+                                    <ul class="pagination custom-pagination justify-content-center">
+                                        
+                                        <li class="page-item <?php echo e($reservations->onFirstPage() ? 'disabled' : ''); ?>">
+                                            <a class="page-link"
+                                            href="<?php echo e($reservations->appends(request()->except('page'))->previousPageUrl()); ?>"
+                                            aria-label="Précédent"
+                                            <?php if(!$reservations->onFirstPage()): ?> onclick="return paginateReservations(event)" <?php endif; ?>>
+                                                <i class="fas fa-chevron-left"></i>
+                                            </a>
+                                        </li>
+
+                                        
+                                        <?php $__currentLoopData = $reservations->getUrlRange(max(1, $reservations->currentPage() - 2), min($reservations->lastPage(), $reservations->currentPage() + 2)); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $page => $url): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <li class="page-item <?php echo e($reservations->currentPage() == $page ? 'active' : ''); ?>">
+                                                <a class="page-link"
+                                                href="<?php echo e($url); ?>"
+                                                onclick="return paginateReservations(event)">
+                                                    <?php echo e($page); ?>
+
+                                                </a>
                                             </li>
-                                        </ul>
-                                    </div>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
+                                        
+                                        <li class="page-item <?php echo e(!$reservations->hasMorePages() ? 'disabled' : ''); ?>">
+                                            <a class="page-link"
+                                            href="<?php echo e($reservations->appends(request()->except('page'))->nextPageUrl()); ?>"
+                                            aria-label="Suivant"
+                                            <?php if($reservations->hasMorePages()): ?> onclick="return paginateReservations(event)" <?php endif; ?>>
+                                                <i class="fas fa-chevron-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </div>
-                            </td>
-                        </tr>
-                        
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-                        <tr>
-                            <td colspan="7" class="empty-state">
-                                <div class="empty-content">
-                                    <i class="fas fa-search-minus"></i>
-                                    <h3>Aucune Reservation trouvée</h3>
-                                    <p>Modifiez vos critères de recherche ou essayez plus tard</p>
-                                </div>
-                            </td>
-                        </tr>
+                            </div>
                         <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-
-            <?php if($reservations->hasPages()): ?>
-                <div class="pagination-wrapper mt-4">
-                    <div class="pagination-info text-muted small mb-2">
-                        <i class="fas fa-file-alt me-1"></i> Affichage de
-                        <span class="fw-bold"><?php echo e($reservations->firstItem()); ?></span>
-                        à <span class="fw-bold"><?php echo e($reservations->lastItem()); ?></span>
-                        sur <span class="fw-bold"><?php echo e($reservations->total()); ?></span> réservations
-                    </div>
-
-                    <div class="pagination-controls">
-                        <ul class="pagination custom-pagination justify-content-center">
-                            
-                            <li class="page-item <?php echo e($reservations->onFirstPage() ? 'disabled' : ''); ?>">
-                                <a class="page-link"
-                                href="<?php echo e($reservations->appends(request()->except('page'))->previousPageUrl()); ?>"
-                                aria-label="Précédent"
-                                <?php if(!$reservations->onFirstPage()): ?> onclick="return paginateReservations(event)" <?php endif; ?>>
-                                    <i class="fas fa-chevron-left"></i>
-                                </a>
-                            </li>
-
-                            
-                            <?php $__currentLoopData = $reservations->getUrlRange(max(1, $reservations->currentPage() - 2), min($reservations->lastPage(), $reservations->currentPage() + 2)); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $page => $url): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <li class="page-item <?php echo e($reservations->currentPage() == $page ? 'active' : ''); ?>">
-                                    <a class="page-link"
-                                    href="<?php echo e($url); ?>"
-                                    onclick="return paginateReservations(event)">
-                                        <?php echo e($page); ?>
-
-                                    </a>
-                                </li>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
-                            
-                            <li class="page-item <?php echo e(!$reservations->hasMorePages() ? 'disabled' : ''); ?>">
-                                <a class="page-link"
-                                href="<?php echo e($reservations->appends(request()->except('page'))->nextPageUrl()); ?>"
-                                aria-label="Suivant"
-                                <?php if($reservations->hasMorePages()): ?> onclick="return paginateReservations(event)" <?php endif; ?>>
-                                    <i class="fas fa-chevron-right"></i>
-                                </a>
-                            </li>
-                        </ul>
                     </div>
                 </div>
-            <?php endif; ?>
+            </div>
         </div>
-    </div>
-</div>
-
 <!-- Modals for formations -->
 <?php $__currentLoopData = $studentsWithReservations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $student): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 <div class="modal fade" id="formationsModal<?php echo e($student['reservation_id']); ?>" tabindex="-1" aria-labelledby="formationsModalLabel<?php echo e($student['reservation_id']); ?>" aria-hidden="true">
@@ -417,6 +416,37 @@
 });
 </script>
 <style>
+     /* Empty State */
+    .empty-state {
+        padding: 2.5rem 1rem; /* Réduit de 3rem à 2.5rem */
+        text-align: center;
+    }
+
+    .empty-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .empty-content i {
+        font-size: 3rem;
+        color: #cbd5e1;
+        margin-bottom: 1rem;
+    }
+
+    .empty-content h3 {
+        margin: 0 0 0.5rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .empty-content p {
+        color: var(--text-secondary);
+        margin: 0;
+        font-size: 0.95rem;
+    }
 
 
     .dropdown-toggle::after {

@@ -291,7 +291,13 @@ Route::group(['middleware' => 'auth'], function () {
 
 	Route::view('knowledgebase', 'admin.miscellaneous.knowledgebase')->name('knowledgebase');
 
+    Route::prefix('feedbacks')->group(function () {
+		Route::get('/', [FeedbackController::class, 'index'])->name('feedbacks');
+		
+		Route::delete('/{id}', [FeedbackController::class, 'destroy'])->name('feedbackdestroy');
+		Route::post('/deleteSelected', [FeedbackController::class, 'deleteSelected'])->name('deleteSelected');
 
+	});
 		// Routes Catégorie
 		Route::prefix('categorie')->group(function () {
 			Route::get('categories', [CategorieController::class, 'index'])->name('categories');                // Liste

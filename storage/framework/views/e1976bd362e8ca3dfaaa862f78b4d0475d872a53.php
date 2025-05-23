@@ -1,14 +1,15 @@
 <!-- Page de gestion des tentatives avec design professionnel et créatif -->
 <div >
-    <!-- En-tête de page avec effet parallaxe léger -->
-    <div class="carte-header">
-        <div class="header-content">
-            <div class="header-icon">
-                <i class="fas fa-clipboard-check"></i>
+
+    <div class="card-header bg-primary text-white py-3">
+        <div class="d-flex align-items-center">
+            <div class="rounded-circle bg-white p-2 me-3">
+                <i class="fas fa-clipboard-check text-primary fa-lg"></i>
+
             </div>
-            <div class="header-text">
-                <h1>Tableau de Bord des Évaluations</h1>
-                <p>Visualisez et gérez les tentatives de quiz des apprenants</p>
+
+                <h3 class="fw-bold mb-0">Tableau de Bord des Évaluations</h3>
+
             </div>
         </div>
     </div>
@@ -18,7 +19,7 @@
             <div class="card-header-custom">
                 <div class="header-title">
                     <i class="fas fa-graduation-cap header-icon"></i>
-                    <h2>Gestion des Tentatives</h2>
+                    <h5>Gestion des Tentatives</h5>
                 </div>
 
                 <div class="quick-stats">
@@ -44,7 +45,7 @@
                         <div class="stat-icon warning">
                             <i class="fas fa-exclamation-triangle"></i>
                         </div>
-                       
+
                         <div class="stat-content">
                             <span class="stat-value"><?php echo e($attempts->where('tab_switches', '>=', 2)->count()); ?></span>
                             <span class="stat-label">Tentatives de triche</span>
@@ -377,32 +378,21 @@
         margin: 0 auto;
     }
 
+
     .header-icon {
-        font-size: 2.5rem; /* Réduit de 3.5rem à 2.5rem */
-        margin-right: 1.5rem; /* Réduit de 2rem à 1.5rem */
-        height: 5rem; /* Réduit de 7rem à 5rem */
-        width: 5rem; /* Réduit de 7rem à 5rem */
+        font-size: 1.5rem;       /* Taille de l'icône */
+        margin-right: 1rem;      /* Espacement à droite */
+        height: 3rem;            /* Hauteur du cercle */
+        width: 3rem;             /* Largeur du cercle (doit égaler la hauteur) */
         background: rgba(255, 255, 255, 0.2);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        border: 3px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Ombre plus subtile */
+        border: 2px solid rgba(255, 255, 255, 0.3); /* Bordure plus fine */
     }
 
-    .header-text h1 {
-        margin: 0;
-        font-size: 2rem; /* Réduit de 2.5rem à 2rem */
-        font-weight: 600;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .header-text p {
-        font-size: 1rem; /* Réduit de 1.2rem à 1rem */
-        margin: 0.5rem 0 0;
-        opacity: 0.8;
-    }
 
     /* Main Content Container */
     .main-container {

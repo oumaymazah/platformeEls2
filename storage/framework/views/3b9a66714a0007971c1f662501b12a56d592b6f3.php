@@ -1,8 +1,4 @@
-
-
-@extends('layouts.admin.master')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-12">
@@ -13,8 +9,8 @@
                     </div>
                     <div class="card-body">
                         <div class="bg-white p-3 rounded mb-4">
-                            <form action="{{ route('deleteSelected') }}" method="POST" id="bulk-delete-form">
-                                @csrf
+                            <form action="<?php echo e(route('deleteSelected')); ?>" method="POST" id="bulk-delete-form">
+                                <?php echo csrf_field(); ?>
                                 <div class="row align-items-center">
                                     <div class="col-md-4 mb-2 mb-md-0">
                                         <div class="d-flex align-items-center">
@@ -64,12 +60,12 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach($feedbacks as $feedback)
-                                                <tr data-rate="{{ $feedback->rating_count !== null ? number_format($feedback->rating_count, 1) : 'null' }}" data-id="{{ $feedback->id }}">
+                                            <?php $__currentLoopData = $feedbacks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $feedback): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <tr data-rate="<?php echo e($feedback->rating_count !== null ? number_format($feedback->rating_count, 1) : 'null'); ?>" data-id="<?php echo e($feedback->id); ?>">
                                                     <td class="text-center">
                                                         <div class="custom-control custom-checkbox">
-                                                            <input type="checkbox" class="custom-control-input feedback-checkbox" id="feedback-{{ $feedback->id }}" name="feedbacks[]" value="{{ $feedback->id }}">
-                                                            <label class="custom-control-label" for="feedback-{{ $feedback->id }}"></label>
+                                                            <input type="checkbox" class="custom-control-input feedback-checkbox" id="feedback-<?php echo e($feedback->id); ?>" name="feedbacks[]" value="<?php echo e($feedback->id); ?>">
+                                                            <label class="custom-control-label" for="feedback-<?php echo e($feedback->id); ?>"></label>
                                                         </div>
                                                     </td>
                                                     <td>
@@ -77,45 +73,45 @@
                                                             <div class="avatar-sm bg-light rounded mr-3 text-center">
                                                             </div>
                                                             <div>
-                                                                <h6 class="mb-0">{{ $feedback->training>title }}</h6>
-                                                                @if(isset($feedback->user))
-                                                                    <small class="text-muted">Par: {{ $feedback->user->name ?? 'Anonyme' }}</small>
-                                                                @endif
+                                                                <h6 class="mb-0"><?php echo e($feedback->training>title); ?></h6>
+                                                                <?php if(isset($feedback->user)): ?>
+                                                                    <small class="text-muted">Par: <?php echo e($feedback->user->name ?? 'Anonyme'); ?></small>
+                                                                <?php endif; ?>
                                                             </div>
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        @if ($feedback->rating_count !== null)
-                                                            <span class="d-none">{{ number_format($feedback->rating_count, 1) }}</span>
+                                                        <?php if($feedback->rating_count !== null): ?>
+                                                            <span class="d-none"><?php echo e(number_format($feedback->rating_count, 1)); ?></span>
                                                             <div class="rating-stars">
-                                                                @for ($i = 1; $i <= 5; $i++)
-                                                                    @if ($feedback->rating_count >= $i)
+                                                                <?php for($i = 1; $i <= 5; $i++): ?>
+                                                                    <?php if($feedback->rating_count >= $i): ?>
                                                                         <i class="fa fa-star filled"></i>
-                                                                    @elseif ($feedback->rating_count >= ($i - 0.5))
+                                                                    <?php elseif($feedback->rating_count >= ($i - 0.5)): ?>
                                                                         <i class="fa fa-star-half-o filled"></i>
-                                                                    @else
+                                                                    <?php else: ?>
                                                                         <i class="fa fa-star-o"></i>
-                                                                    @endif
-                                                                @endfor
-                                                                <span class="rating-value ml-2">({{ number_format($feedback->rating_count, 1) }})</span>
+                                                                    <?php endif; ?>
+                                                                <?php endfor; ?>
+                                                                <span class="rating-value ml-2">(<?php echo e(number_format($feedback->rating_count, 1)); ?>)</span>
                                                             </div>
-                                                        @else
+                                                        <?php else: ?>
                                                             <span class="d-none">null</span>
                                                             <span class="badge badge-light">Aucune note</span>
-                                                        @endif
+                                                        <?php endif; ?>
                                                     </td>
                                                     <td>
                                                         <div class="btn-group btn-group-sm">
                                                             <button type="button" class="btn btn-outline-danger delete-button"
-                                                                    data-delete-url="{{ route('feedbackdestroy', $feedback->id) }}"
-                                                                    data-csrf="{{ csrf_token() }}"
+                                                                    data-delete-url="<?php echo e(route('feedbackdestroy', $feedback->id)); ?>"
+                                                                    data-csrf="<?php echo e(csrf_token()); ?>"
                                                                     title="Supprimer">
                                                                 <i class="fa fa-trash"></i>
                                                             </button>
                                                         </div>
                                                     </td>
                                                 </tr>
-                                            @endforeach
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -129,7 +125,7 @@
                                         <div class="d-flex">
                                             <div class="flex-grow-1">
                                                 <p class="text-muted fw-medium mb-2">Total Feedbacks</p>
-                                                <h4 class="mb-0" id="total-feedbacks">{{ count($feedbacks) }}</h4>
+                                                <h4 class="mb-0" id="total-feedbacks"><?php echo e(count($feedbacks)); ?></h4>
                                             </div>
                                             <div class="mini-stat-icon avatar-sm rounded-circle bg-primary align-self-center">
                                                 <span class="avatar-title">
@@ -147,7 +143,7 @@
                                             <div class="flex-grow-1">
                                                 <p class="text-muted fw-medium mb-2">Note Moyenne</p>
                                                 <h4 class="mb-0" id="average-rating">
-                                                    @php
+                                                    <?php
                                                         $totalRating = 0;
                                                         $ratedCount = 0;
                                                         foreach($feedbacks as $feedback) {
@@ -157,7 +153,7 @@
                                                             }
                                                         }
                                                         echo $ratedCount > 0 ? number_format($totalRating / $ratedCount, 1) : 'N/A';
-                                                    @endphp
+                                                    ?>
                                                 </h4>
                                             </div>
                                             <div class="mini-stat-icon avatar-sm rounded-circle bg-primary align-self-center">
@@ -176,7 +172,7 @@
                                             <div class="flex-grow-1">
                                                 <p class="text-muted fw-medium mb-2">Formations Notées</p>
                                                 <h4 class="mb-0" id="rated-formations">
-                                                    @php
+                                                    <?php
                                                         $ratedFormations = [];
                                                         foreach($feedbacks as $feedback) {
                                                             if ($feedback->rating_count !== null) {
@@ -184,7 +180,7 @@
                                                             }
                                                         }
                                                         echo count($ratedFormations);
-                                                    @endphp
+                                                    ?>
                                                 </h4>
                                             </div>
                                             <div class="mini-stat-icon avatar-sm rounded-circle bg-primary align-self-center">
@@ -222,25 +218,25 @@
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
-    <script src="{{ asset('assets/js/prism/prism.min.js') }}"></script>
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/datatables.css') }}">
+<?php $__env->startPush('scripts'); ?>
+    <script src="<?php echo e(asset('assets/js/prism/prism.min.js')); ?>"></script>
+    <link rel="stylesheet" type="text/css" href="<?php echo e(asset('assets/css/datatables.css')); ?>">
 
-    <script src="{{ asset('assets/js/clipboard/clipboard.min.js') }}"></script>
-    <script src="{{ asset('assets/js/custom-card/custom-card.js') }}"></script>
-    <script src="{{ asset('assets/js/height-equal.js') }}"></script>
-    <script src="{{ asset('assets/js/tooltip-init.js') }}"></script>
+    <script src="<?php echo e(asset('assets/js/clipboard/clipboard.min.js')); ?>"></script>
+    <script src="<?php echo e(asset('assets/js/custom-card/custom-card.js')); ?>"></script>
+    <script src="<?php echo e(asset('assets/js/height-equal.js')); ?>"></script>
+    <script src="<?php echo e(asset('assets/js/tooltip-init.js')); ?>"></script>
     <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap4.min.js"></script>
-    <script src="{{ asset('assets/js/MonJs/feedback/feedback.js') }}"></script>
-@endpush
+    <script src="<?php echo e(asset('assets/js/MonJs/feedback/feedback.js')); ?>"></script>
+<?php $__env->stopPush(); ?>
 
-@push('css')
+<?php $__env->startPush('css'); ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap4.min.css">
-@endpush
+<?php $__env->stopPush(); ?>
 
 
 
@@ -256,3 +252,5 @@
 
 
 
+
+<?php echo $__env->make('layouts.admin.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\msi\Desktop\Centre_Formation-main\resources\views/admin/apps/feedback/feedbacks.blade.php ENDPATH**/ ?>

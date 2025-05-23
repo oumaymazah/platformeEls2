@@ -7,7 +7,7 @@
             <div class="rounded-circle bg-white p-2 me-3">
                 <i class="fas fa-user-tag text-primary fa-lg"></i>
             </div>
-                    <h3 class="fw-bold mb-0">Gestion des Rôles</h3>
+                    <h3 class="fw-bold mb-0"> Rôles</h3>
             </div>
         </div>
     </div>
@@ -30,14 +30,7 @@
             </div>
         </div>
 
-        <!-- Bouton Nouveau Rôle déplacé ici à droite -->
-        <div class="col-md-7 d-flex justify-content-end align-items-center">
-            <button class="btn btn-primary d-flex align-items-center shadow-sm" id="loadCreateRoleForm"
-                    data-create-url="<?php echo e(route('admin.roles.create')); ?>"
-                    data-bs-toggle="modal" data-bs-target="#exampleModal">
-                <i class="fas fa-plus-circle me-2"></i> Nouveau Rôle
-            </button>
-        </div>
+
     </div>
 
     <!-- Tableau des rôles avec design amélioré -->
@@ -98,30 +91,7 @@
                             <td>
                                 <span class="badge bg-light text-dark border"><?php echo e($role->users->count()); ?> utilisateur(s)</span>
                             </td>
-                            <td>
-                                <div class="dropdown dropdown-role-actions">
-                                    <button class="btn btn-sm btn-light dropdown-toggle" type="button"
-                                            id="dropdownMenuButton-<?php echo e($role->id); ?>" data-bs-toggle="dropdown"
-                                            aria-expanded="false">
-                                            <i class="fas fa-ellipsis-h" aria-hidden="true"></i>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton-<?php echo e($role->id); ?>">
-                                        <li>
 
-                                            <a class="dropdown-item edit-role" href="#"
-                                               data-edit-url="<?php echo e(route('admin.roles.edit', $role)); ?>" id="loadEditRoleForm">
-                                                <i class="fas fa-edit me-2"></i> Modifier
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item delete-role" href="#"
-                                               data-url="<?php echo e(route('admin.roles.destroy', $role)); ?>">
-                                                <i class="fas fa-trash me-2"></i> Supprimer
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </td>
                         </tr>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tbody>

@@ -191,6 +191,15 @@
                             <li><a href="{{ route('admin.quizzes.index') }}" class="{{ routeActive('admin.quizzes.index') }}">Liste des Quiz</a></li>
                             <li><a href="{{ route('admin.quizzes.create') }}" class="{{ routeActive('admin.quizzes.create') }}">Nouveau Quiz</a></li>
                         </ul>
+                        <a class="nav-link menu-title {{ prefixActive('/feedbacks') }}" href="javascript:void(0)">
+                            <i data-feather="box"></i>
+                            <span>Avis</span>
+                        </a>
+                        <ul class="nav-submenu menu-content" style="display: {{ prefixBlock('/feedbacks') }};">
+                            <li><a href="{{ route('feedbacks') }}" class="{{ routeActive('feedbacks') }}">Liste des Avis</a></li>
+
+                        </ul>
+
                         @endhasanyrole
 
                          {{-- categorie --}}

@@ -1,18 +1,18 @@
 
-             <div class="container-fluid px-0">
-                <div class="card rounded-0 border-0 shadow-sm">
-                    <div class="card-header bg-primary text-white py-3 rounded-0 mb-4">
-                        <div class="d-flex align-items-center">
-                            <div class="rounded-circle bg-white p-2 me-3">
-                                <i class="fas fa-calendar-check text-primary fa-lg"></i>
-                            </div>
-                            <h3 class="fw-bold mb-0">Gestion des Réservations</h3>
-                        </div>
-                    </div>
+<div class="container-fluid px-0">
+    <div class="card rounded-0 border-0 shadow-sm">
+        <div class="card-header bg-primary text-white py-3 rounded-0 mb-4">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle bg-white p-2 me-3">
+                         <i class="fas fa-calendar-check text-primary fa-lg"></i>
+                </div>
+                <h3 class="fw-bold mb-0">Gestion des Réservations</h3>
+            </div>
+         </div>
 
-                   <div class="card-body pb-0 pt-3">
-    <h5 class="mb-0">Liste des Réservations des Étudiants</h5>
-</div>
+        <div class="card-body pb-0 pt-3">
+            <h5 class="mb-0">Liste des Réservations des Étudiants</h5>
+        </div>
 
                     <!-- Nouvelle carte de filtrage avec espace -->
                     <div class="card-body pb-0">
@@ -39,11 +39,11 @@
                                             <span class="input-group-text bg-primary text-white">
                                                 <i class="fas fa-search"></i>
                                             </span>
-                                            <input type="text" class="form-control" placeholder="Rechercher par ID réservation, ID user ou téléphone..."
+                                            <input type="text" class="form-control" placeholder="Rechercher par ID réservation,ou téléphone..."
                                                 id="reservation-search-input" value="{{ request('search') ?? '' }}">
-                                            <button class="btn btn-primary" type="button" id="apply-reservation-filters">
+                                            {{-- <button class="btn btn-primary" type="button" id="apply-reservation-filters">
                                                 <i class="fas fa-filter"></i>
-                                            </button>
+                                            </button> --}}
                                         </div>
                                     </div>
 
@@ -74,154 +74,155 @@
                             </div>
                         @endif
 
-            <div class="table-responsive m-0">
-                <table id="reservations-table" class="table table-borderless compact-table m-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="border-top-0">ID</th>
-                            <th class="border-top-0">Nom Complet</th>
-                            <th class="border-top-0">Téléphone</th>
-                            <th class="border-top-0">Email</th>
-                            <th class="border-top-0">Statut</th>
-                            <th class="border-top-0">Date de paiement</th>
-                            {{-- <th class="border-top-0 text-center">Actions</th> --}}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($studentsWithReservations as $student)
-                        <tr data-reservation-id="{{ $student['reservation_id'] }}" class="{{ $student['status'] == 0 ? '' : 'bg-light-blue' }}">
-                            <td class="fw-bold">{{ $student['reservation_id'] }}</td>
-                            <td>{{ $student['nom'] }} {{ $student['prenom'] }}</td>
-                            <td>{{ $student['telephone'] }}</td>
-                            <td class="email-cell">{{ $student['email'] }}</td>
-                            <td>
-                                <span class="badge {{ $student['status'] == 0 ? 'bg-danger' : 'bg-primary' }} px-2 py-1">
-                                    <i class="fas {{ $student['status'] == 0 ? 'fa-clock' : 'fa-check-circle' }} me-1"></i>
-                                    {{ $student['status_text'] }}
-                                </span>
-                            </td>
-                            <td>
-                                @if($student['payment_date'])
-                                    {{ \Carbon\Carbon::parse($student['payment_date'])->format('d/m/Y H:i') }}
-                                @else
-                                <span class="text-muted" style="margin-left: 70px"> - </span>
 
-                                @endif
-                            </td>
-                            <td class="text-center">
-                                <div class="d-flex gap-1 justify-content-center">
-                                    @if($student['status'] == 0)
-                                        <form method="POST" action="{{ route('reservations.updateStatus') }}">
-                                            @csrf
-                                            <input type="hidden" name="reservation_id" value="{{ $student['reservation_id'] }}">
-                                            <input type="hidden" name="status" value="1">
-                                            <button type="submit" class="btn btn-success btn-sm py-1 px-2" title="Valider cette réservation">
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                        </form>
-                                    @else
-                                        <form method="POST" action="{{ route('reservations.updateStatus') }}">
-                                            @csrf
-                                            <input type="hidden" name="reservation_id" value="{{ $student['reservation_id'] }}">
-                                            <input type="hidden" name="status" value="0">
-                                            <button type="submit" class="btn btn-sm py-1 px-2" style="background-color: #907b75; border-color: #907b75; color: white;" title="Annuler la validation">                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </form>
-                                    @endif
+                        <div class="table-responsive m-0">
+                            <table id="reservations-table" class="table table-borderless compact-table m-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="border-top-0">ID</th>
+                                        <th class="border-top-0">Nom Complet</th>
+                                        <th class="border-top-0">Téléphone</th>
+                                        <th class="border-top-0">Email</th>
+                                        <th class="border-top-0">Statut</th>
+                                        <th class="border-top-0">Date de paiement</th>
+                                        {{-- <th class="border-top-0 text-center">Actions</th> --}}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($studentsWithReservations as $student)
+                                    <tr data-reservation-id="{{ $student['reservation_id'] }}" class="{{ $student['status'] == 0 ? '' : 'bg-light-blue' }}">
+                                        <td class="fw-bold">{{ $student['reservation_id'] }}</td>
+                                        <td>{{ $student['nom'] }} {{ $student['prenom'] }}</td>
+                                        <td>{{ $student['telephone'] }}</td>
+                                        <td class="email-cell">{{ $student['email'] }}</td>
+                                        <td>
+                                            <span class="badge {{ $student['status'] == 0 ? 'bg-danger' : 'bg-primary' }} px-2 py-1">
+                                                <i class="fas {{ $student['status'] == 0 ? 'fa-clock' : 'fa-check-circle' }} me-1"></i>
+                                                {{ $student['status_text'] }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if($student['payment_date'])
+                                                {{ \Carbon\Carbon::parse($student['payment_date'])->format('d/m/Y H:i') }}
+                                            @else
+                                            <span class="text-muted" style="margin-left: 70px"> - </span>
+
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="d-flex gap-1 justify-content-center">
+                                                @if($student['status'] == 0)
+                                                    <form method="POST" action="{{ route('reservations.updateStatus') }}">
+                                                        @csrf
+                                                        <input type="hidden" name="reservation_id" value="{{ $student['reservation_id'] }}">
+                                                        <input type="hidden" name="status" value="1">
+                                                        <button type="submit" class="btn btn-success btn-sm py-1 px-2" title="Valider cette réservation">
+                                                            <i class="fas fa-check"></i>
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <form method="POST" action="{{ route('reservations.updateStatus') }}">
+                                                        @csrf
+                                                        <input type="hidden" name="reservation_id" value="{{ $student['reservation_id'] }}">
+                                                        <input type="hidden" name="status" value="0">
+                                                        <button type="submit" class="btn btn-sm py-1 px-2" style="background-color: #907b75; border-color: #907b75; color: white;" title="Annuler la validation">                                                <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
 
 
-                                    <div class="dropdown dropdown-user-actions">
-                                        <button class="btn btn-sm btn-light dropdown-toggle py-1 px-2" type="button"
-                                                id="dropdownMenuButton-{{ $student['reservation_id'] }}" data-bs-toggle="dropdown"
-                                                aria-expanded="false">
-                                                <i class="fas fa-ellipsis-h" aria-hidden="true"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton-{{ $student['reservation_id'] }}">
-                                            <li>
-                                                <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#formationsModal{{ $student['reservation_id'] }}">
-                                                    <i class="fas fa-book-open me-2"></i> Voir formations ({{ count($student['formations']) }})
-                                                </button>
-                                            </li>
-                                            <li>
-                                                <form method="POST" action="{{ route('reservations.updateStatus') }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer définitivement cette réservation ? Cette action est irréversible.')" class="d-inline">
-                                                    @csrf
-                                                    <input type="hidden" name="reservation_id" value="{{ $student['reservation_id'] }}">
-                                                    <button type="submit" class="dropdown-item text-danger">
-                                                        <i class="fas fa-trash-alt me-2"></i> Supprimer
+                                                <div class="dropdown dropdown-user-actions">
+                                                    <button class="btn btn-sm btn-light dropdown-toggle py-1 px-2" type="button"
+                                                            id="dropdownMenuButton-{{ $student['reservation_id'] }}" data-bs-toggle="dropdown"
+                                                            aria-expanded="false">
+                                                            <i class="fas fa-ellipsis-h" aria-hidden="true"></i>
                                                     </button>
-                                                </form>
+                                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton-{{ $student['reservation_id'] }}">
+                                                        <li>
+                                                            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#formationsModal{{ $student['reservation_id'] }}">
+                                                                <i class="fas fa-book-open me-2"></i> Voir formations ({{ count($student['formations']) }})
+                                                            </button>
+                                                        </li>
+                                                        <li>
+                                                            <form method="POST" action="{{ route('reservations.updateStatus') }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer définitivement cette réservation ? Cette action est irréversible.')" class="d-inline">
+                                                                @csrf
+                                                                <input type="hidden" name="reservation_id" value="{{ $student['reservation_id'] }}">
+                                                                <button type="submit" class="dropdown-item text-danger">
+                                                                    <i class="fas fa-trash-alt me-2"></i> Supprimer
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {{-- @endforeach --}}
+                                    @empty
+                                    <tr>
+                                        <td colspan="7" class="empty-state">
+                                            <div class="empty-content">
+                                                <i class="fas fa-search-minus"></i>
+                                                <h3>Aucune Reservation trouvée</h3>
+                                                <p>Modifiez vos critères de recherche ou essayez plus tard</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        @if($reservations->hasPages())
+                            <div class="pagination-wrapper mt-4">
+                                <div class="pagination-info text-muted small mb-2">
+                                    <i class="fas fa-file-alt me-1"></i> Affichage de
+                                    <span class="fw-bold">{{ $reservations->firstItem() }}</span>
+                                    à <span class="fw-bold">{{ $reservations->lastItem() }}</span>
+                                    sur <span class="fw-bold">{{ $reservations->total() }}</span> réservations
+                                </div>
+
+                                <div class="pagination-controls">
+                                    <ul class="pagination custom-pagination justify-content-center">
+                                        {{-- Lien Précédent --}}
+                                        <li class="page-item {{ $reservations->onFirstPage() ? 'disabled' : '' }}">
+                                            <a class="page-link"
+                                            href="{{ $reservations->appends(request()->except('page'))->previousPageUrl() }}"
+                                            aria-label="Précédent"
+                                            @if(!$reservations->onFirstPage()) onclick="return paginateReservations(event)" @endif>
+                                                <i class="fas fa-chevron-left"></i>
+                                            </a>
+                                        </li>
+
+                                        {{-- Numéros de page --}}
+                                        @foreach ($reservations->getUrlRange(max(1, $reservations->currentPage() - 2), min($reservations->lastPage(), $reservations->currentPage() + 2)) as $page => $url)
+                                            <li class="page-item {{ $reservations->currentPage() == $page ? 'active' : '' }}">
+                                                <a class="page-link"
+                                                href="{{ $url }}"
+                                                onclick="return paginateReservations(event)">
+                                                    {{ $page }}
+                                                </a>
                                             </li>
-                                        </ul>
-                                    </div>
+                                        @endforeach
 
+                                        {{-- Lien Suivant --}}
+                                        <li class="page-item {{ !$reservations->hasMorePages() ? 'disabled' : '' }}">
+                                            <a class="page-link"
+                                            href="{{ $reservations->appends(request()->except('page'))->nextPageUrl() }}"
+                                            aria-label="Suivant"
+                                            @if($reservations->hasMorePages()) onclick="return paginateReservations(event)" @endif>
+                                                <i class="fas fa-chevron-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </div>
-                            </td>
-                        </tr>
-                        {{-- @endforeach --}}
-                        @empty
-                        <tr>
-                            <td colspan="7" class="empty-state">
-                                <div class="empty-content">
-                                    <i class="fas fa-search-minus"></i>
-                                    <h3>Aucune Reservation trouvée</h3>
-                                    <p>Modifiez vos critères de recherche ou essayez plus tard</p>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            @if($reservations->hasPages())
-                <div class="pagination-wrapper mt-4">
-                    <div class="pagination-info text-muted small mb-2">
-                        <i class="fas fa-file-alt me-1"></i> Affichage de
-                        <span class="fw-bold">{{ $reservations->firstItem() }}</span>
-                        à <span class="fw-bold">{{ $reservations->lastItem() }}</span>
-                        sur <span class="fw-bold">{{ $reservations->total() }}</span> réservations
-                    </div>
-
-                    <div class="pagination-controls">
-                        <ul class="pagination custom-pagination justify-content-center">
-                            {{-- Lien Précédent --}}
-                            <li class="page-item {{ $reservations->onFirstPage() ? 'disabled' : '' }}">
-                                <a class="page-link"
-                                href="{{ $reservations->appends(request()->except('page'))->previousPageUrl() }}"
-                                aria-label="Précédent"
-                                @if(!$reservations->onFirstPage()) onclick="return paginateReservations(event)" @endif>
-                                    <i class="fas fa-chevron-left"></i>
-                                </a>
-                            </li>
-
-                            {{-- Numéros de page --}}
-                            @foreach ($reservations->getUrlRange(max(1, $reservations->currentPage() - 2), min($reservations->lastPage(), $reservations->currentPage() + 2)) as $page => $url)
-                                <li class="page-item {{ $reservations->currentPage() == $page ? 'active' : '' }}">
-                                    <a class="page-link"
-                                    href="{{ $url }}"
-                                    onclick="return paginateReservations(event)">
-                                        {{ $page }}
-                                    </a>
-                                </li>
-                            @endforeach
-
-                            {{-- Lien Suivant --}}
-                            <li class="page-item {{ !$reservations->hasMorePages() ? 'disabled' : '' }}">
-                                <a class="page-link"
-                                href="{{ $reservations->appends(request()->except('page'))->nextPageUrl() }}"
-                                aria-label="Suivant"
-                                @if($reservations->hasMorePages()) onclick="return paginateReservations(event)" @endif>
-                                    <i class="fas fa-chevron-right"></i>
-                                </a>
-                            </li>
-                        </ul>
+                            </div>
+                        @endif
                     </div>
                 </div>
-            @endif
+            </div>
         </div>
-    </div>
-</div>
-
 <!-- Modals for formations -->
 @foreach($studentsWithReservations as $student)
 <div class="modal fade" id="formationsModal{{ $student['reservation_id'] }}" tabindex="-1" aria-labelledby="formationsModalLabel{{ $student['reservation_id'] }}" aria-hidden="true">
@@ -410,6 +411,37 @@
 });
 </script>
 <style>
+     /* Empty State */
+    .empty-state {
+        padding: 2.5rem 1rem; /* Réduit de 3rem à 2.5rem */
+        text-align: center;
+    }
+
+    .empty-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .empty-content i {
+        font-size: 3rem;
+        color: #cbd5e1;
+        margin-bottom: 1rem;
+    }
+
+    .empty-content h3 {
+        margin: 0 0 0.5rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .empty-content p {
+        color: var(--text-secondary);
+        margin: 0;
+        font-size: 0.95rem;
+    }
 
 
     .dropdown-toggle::after {

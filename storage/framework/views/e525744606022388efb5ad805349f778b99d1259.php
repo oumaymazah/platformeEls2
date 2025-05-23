@@ -191,6 +191,15 @@
                             <li><a href="<?php echo e(route('admin.quizzes.index')); ?>" class="<?php echo e(routeActive('admin.quizzes.index')); ?>">Liste des Quiz</a></li>
                             <li><a href="<?php echo e(route('admin.quizzes.create')); ?>" class="<?php echo e(routeActive('admin.quizzes.create')); ?>">Nouveau Quiz</a></li>
                         </ul>
+                        <a class="nav-link menu-title <?php echo e(prefixActive('/feedbacks')); ?>" href="javascript:void(0)">
+                            <i data-feather="box"></i>
+                            <span>Avis</span>
+                        </a>
+                        <ul class="nav-submenu menu-content" style="display: <?php echo e(prefixBlock('/feedbacks')); ?>;">
+                            <li><a href="<?php echo e(route('feedbacks')); ?>" class="<?php echo e(routeActive('feedbacks')); ?>">Liste des Avis</a></li>
+
+                        </ul>
+
                         <?php endif; ?>
 
                          

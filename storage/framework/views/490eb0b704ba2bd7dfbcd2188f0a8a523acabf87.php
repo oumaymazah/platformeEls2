@@ -6,7 +6,7 @@
                 <button class="btn btn-light me-3 back-btn" data-back-tab="users">
                     <i class="fas fa-arrow-left"></i>
                 </button>
-                <h5 class="mb-0">Plus d'informations sur {{ $user->name }}</h5>
+                <h5 class="mb-0">Plus d'informations sur <?php echo e($user->name); ?></h5>
             </div>
         </div>
         <div class="card-body">
@@ -21,19 +21,19 @@
                             <div class="col-md-4">
                                 <div class="info-item">
                                     <span class="info-label">Nom</span>
-                                    <span class="info-value">{{ $user->name }}</span>
+                                    <span class="info-value"><?php echo e($user->name); ?></span>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="info-item">
                                     <span class="info-label">Prénom</span>
-                                    <span class="info-value">{{ $user->lastname }}</span>
+                                    <span class="info-value"><?php echo e($user->lastname); ?></span>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="info-item">
                                     <span class="info-label">Email</span>
-                                    <span class="info-value">{{ $user->email }}</span>
+                                    <span class="info-value"><?php echo e($user->email); ?></span>
                                 </div>
                             </div>
                         </div>
@@ -49,21 +49,21 @@
                             <h6 class="mb-0"><i class="fas fa-user-tag me-2"></i>Rôles attribués</h6>
                         </div>
                         <div class="card-body p-0">
-                            @if ($user->roles->isNotEmpty())
+                            <?php if($user->roles->isNotEmpty()): ?>
                                 <ul class="list-group list-group-flush">
-                                    @foreach($user->roles as $role)
+                                    <?php $__currentLoopData = $user->roles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $role): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span class="role-name">{{ $role->name }}</span>
+                                        <span class="role-name"><?php echo e($role->name); ?></span>
 
                                     </li>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </ul>
-                            @else
+                            <?php else: ?>
                                 <div class="text-center p-4">
                                     <i class="fas fa-info-circle text-muted mb-2 fa-2x"></i>
                                     <p class="text-muted mb-0">Aucun rôle assigné</p>
                                 </div>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -169,3 +169,4 @@
         background: linear-gradient(45deg, #6777ef, #4d5483) !important;
     }
 </style>
+<?php /**PATH C:\Users\msi\Desktop\Centre_Formation-main\resources\views/admin/user/roles.blade.php ENDPATH**/ ?>
