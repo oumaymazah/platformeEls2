@@ -144,17 +144,6 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
     };
 
-    // Forcer le mode plein écran
-    const manageFullscreen = () => {
-        const methods = [
-            'requestFullscreen',
-            'webkitRequestFullscreen',
-            'msRequestFullscreen'
-        ];
-
-        const elem = document.documentElement;
-        methods.some(method => elem[method]?.call(elem));
-    };
 
     // Surveillance des onglets
     document.addEventListener('visibilitychange', () => {
@@ -166,11 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener(event, preventUserActions);
     });
 
-    // Gestion du plein écran
-    manageFullscreen();
-    document.addEventListener('fullscreenchange', () => {
-        if (!document.fullscreenElement) manageFullscreen();
-    });
 
     // Gestion du timer
     let timeLeft = <?php echo e($timeLeft); ?>;
@@ -256,7 +240,6 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Quiz monitor initialized successfully');
 });
 </script>
-
 
 <?php $__env->stopPush(); ?>
 
